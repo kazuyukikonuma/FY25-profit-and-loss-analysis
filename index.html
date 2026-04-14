@@ -1505,8 +1505,13 @@
           },
           tooltip: { callbacks: {
             label: ctx => {
-              const labels = [isJa?'原価':'原價', isJa?'販売費':'銷售費', isJa?'管理費':'管理費', isJa?'利益':'利益'];
-              return ` ${labels[ctx.datasetIndex]}: ${ctx.parsed.x.toFixed(1)}M`;
+              const dsLabels = [isJa?'原価':'原價', isJa?'販売費':'銷售費', isJa?'管理費':'管理費', isJa?'利益':'利益'];
+              const val = ctx.parsed.y;
+              const lbl = dsLabels[ctx.datasetIndex] || ctx.dataset.label;
+              return ` ${lbl}: ${val > 0 ? '+' : ''}${val.toFixed(1)}M`;
+            },
+            title: ctx => {
+              return ctx[0] ? ctx[0].label : '';
             }
           }}
         },
