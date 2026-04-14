@@ -352,9 +352,9 @@
 <nav class="tabbar">
   <div class="tab active" onclick="showTab('overview')" data-ja="事業別損益" data-zh="事業別損益">事業別損益</div>
   <div class="tab" onclick="showTab('learning')" data-ja="学習商品" data-zh="學習商品">学習商品</div>
-  <div class="tab" onclick="showTab('monthly')" data-ja="月次推移" data-zh="月次趨勢">月次推移 <span class="tab-badge" data-ja="建設中" data-zh="建設中">建設中</span></div>
-  <div class="tab" onclick="showTab('cost')" data-ja="費用構造" data-zh="費用結構">費用構造 <span class="tab-badge" data-ja="建設中" data-zh="建設中">建設中</span></div>
-  <div class="tab" onclick="showTab('channel')" data-ja="ルート別" data-zh="通路別">ルート別 <span class="tab-badge" data-ja="建設中" data-zh="建設中">建設中</span></div>
+  <div class="tab" onclick="showTab('monthly')"><span data-ja="月次推移" data-zh="月次趨勢">月次推移</span> <span class="tab-badge">建設中</span></div>
+  <div class="tab" onclick="showTab('cost')"><span data-ja="費用構造" data-zh="費用結構">費用構造</span> <span class="tab-badge">建設中</span></div>
+  <div class="tab" onclick="showTab('channel')"><span data-ja="ルート別" data-zh="通路別">ルート別</span> <span class="tab-badge">建設中</span></div>
 </nav>
 
 <!-- ══ PAGE: overview ══ -->
@@ -1692,7 +1692,7 @@
   function setLang(lang){
     currentLang=lang;
     document.querySelectorAll('.lang-btn').forEach(btn=>{btn.classList.toggle('active',btn.textContent.trim()===(lang==='ja'?'JP':'中文'));});
-    document.querySelectorAll('[data-ja]').forEach(el=>{const v=el.getAttribute('data-'+lang);if(v!==null)el.textContent=v;});
+    document.querySelectorAll('[data-ja]').forEach(el=>{const v=el.getAttribute('data-'+lang);if(v!==null && el.children.length===0)el.textContent=v;});
     const aS=document.querySelector('.subpage.active');
     if(aS){
       const id=aS.id.replace('sub-','');
