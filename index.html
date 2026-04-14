@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FY25 P&L Dashboard — Benesse Taiwan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f6f3;
+    --bg3: #efede8;
+    --border: #e2dfd8;
+    --border2: #ccc9c0;
+    --text1: #1a1916;
+    --text2: #6b6860;
+    --text3: #9c9a94;
+    --green: #1d7a5f;
+    --green-bg: #edf5f2;
+    --green-mid: #a8d4c8;
+    --red: #b83a2e;
+    --red-bg: #fdf0ee;
+    --red-mid: #e8b0aa;
+    --amber: #96600a;
+    --amber-bg: #fdf4e7;
+    --blue: #1a5496;
+    --blue-bg: #edf2fb;
+    --accent: #1a1916;
+    /* マカロンパレット（事業別） */
+    --c-stage:   #E8A598;  /* 舞台劇  coral */
+    --c-learn:   #A8C5DA;  /* 学習商品 sky */
+    --c-ip:      #C5B4E3;  /* IPライセンス lavender */
+    --c-peri:    #A8D5B5;  /* 周辺商品 mint */
+    --c-mira:    #F5D4A0;  /* Mirafeel peach */
+    --c-cqd:     #C8C8C8;  /* 巧連智數位 gray */
+    --c-other:   #D4C5B0;  /* その他 warm-gray */
+    --c-kyotu:   #F5A8A0;  /* 共通費 rose */
+    --c-stage-d: #B05040;
+    --c-learn-d: #4A7A9B;
+    --c-ip-d:    #7A5AAB;
+    --c-peri-d:  #3A8A55;
+    --c-mira-d:  #C07820;
+    --c-cqd-d:   #787878;
+    --c-other-d: #8A7A60;
+    --c-kyotu-d: #B83A2E;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 6px;
+    --radius-lg: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg3);
+    min-width: 360px;
+    color: var(--text1);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .layout-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: var(--bg);
+    min-height: 100vh;
+    box-shadow: 0 0 0 1px var(--border);
+  }
+
+  /* ── Header ── */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .logo { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; color: var(--text2); text-transform: uppercase; }
+  .header-title { font-size: 13px; font-weight: 500; color: var(--text1); }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+
+  /* Lang Toggle */
+  .lang-toggle {
+    display: flex;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .lang-btn {
+    padding: 4px 11px;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: var(--font);
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--text2);
+    transition: background 0.15s, color 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .lang-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ── Tab Bar ── */
+  .tabbar {
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    display: flex;
+    gap: 0;
+  }
+  .tab {
+    padding: 11px 18px;
+    font-size: 12.5px;
+    font-weight: 400;
+    color: var(--text2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text1); }
+  .tab.active { color: var(--text1); font-weight: 500; border-bottom-color: var(--text1); }
+  .tab-badge {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--bg3);
+    color: var(--text3);
+    font-weight: 400;
+    vertical-align: middle;
+  }
+  .tab.active .tab-badge { background: var(--bg3); color: var(--text2); }
+
+  /* ── Page ── */
+  .page { display: none; padding: 24px 28px 48px; }
+  .page.active { display: block; }
+
+  /* ── KPI Strip ── */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+  }
+  .kpi-label { font-size: 11px; color: var(--text3); letter-spacing: 0.03em; margin-bottom: 5px; }
+  .kpi-value { font-size: 22px; font-weight: 300; color: var(--text1); font-family: var(--mono); letter-spacing: -0.02em; }
+  .kpi-value.neg { color: var(--red); }
+  .kpi-value.pos { color: var(--green); }
+  .kpi-sub { font-size: 10.5px; color: var(--text3); margin-top: 3px; }
+
+  /* ── Section Title ── */
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    margin-top: 28px;
+  }
+  .section-head:first-child { margin-top: 0; }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--text1); }
+  .section-note { font-size: 11px; color: var(--text3); }
+
+  /* ── P&L Table ── */
+  .pl-table-wrap { overflow-x: auto; }
+  table.pl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    min-width: 760px;
+  }
+  table.pl thead th {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    padding: 6px 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--border2);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+  table.pl thead th.lh { text-align: left; }
+  table.pl tbody td {
+    padding: 7px 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+    color: var(--text1);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  table.pl tbody td.lc {
+    text-align: left;
+    font-family: var(--font);
+    font-size: 12.5px;
+    font-weight: 500;
+  }
+  table.pl tbody td.lc.ind {
+    font-weight: 400;
+    color: var(--text2);
+    padding-left: 22px;
+    font-size: 12px;
+  }
+  table.pl tr:hover td { background: var(--bg2); }
+  table.pl tr.profit-row td { }
+  table.pl tr.profit-row td.lc::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green-mid); margin-right: 7px; vertical-align: middle; }
+  table.pl tr.loss-row td.lc::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--red-mid); margin-right: 7px; vertical-align: middle; }
+  table.pl tr.kyotu-row td { color: var(--text2); background: var(--bg2); font-size: 11.5px; }
+  table.pl tr.kyotu-row td.lc { font-weight: 400; font-size: 12px; color: var(--text2); }
+  table.pl tr.kyotu-row td.lc::before { display: none; }
+  table.pl tr.total-row td { font-weight: 500; border-top: 1.5px solid var(--border2); border-bottom: 1.5px solid var(--border2); background: var(--bg2); font-size: 12.5px; }
+  table.pl tr.total-row td.lc::before { display: none; }
+  table.pl tr.subtotal-row td { border-top: 1px solid var(--border); background: var(--bg3); font-size: 12px; }
+  table.pl tr.subtotal-row td.lc { font-weight: 500; font-size: 12px; }
+  table.pl tr.subtotal-row td.lc::before { display: none; }
+  .val-neg { color: var(--red) !important; }
+  .val-pos { color: var(--green) !important; }
+
+  /* ── Bar Chart ── */
+  .bar-section { margin-top: 28px; }
+  .bar-list { display: flex; flex-direction: column; gap: 7px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; }
+  .bar-label { font-size: 12px; color: var(--text1); width: 96px; text-align: right; flex-shrink: 0; }
+  .bar-track {
+    flex: 1;
+    height: 20px;
+    background: var(--bg2);
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bar-fill-pos {
+    height: 100%;
+    background: linear-gradient(90deg, #a8d4c8 0%, #1d7a5f 100%);
+    border-radius: 3px;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+  .bar-fill-neg {
+    height: 100%;
+    background: linear-gradient(90deg, #e8b0aa 0%, #b83a2e 100%);
+    border-radius: 3px;
+    float: right;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+  .bar-val { font-size: 11.5px; font-family: var(--mono); width: 54px; flex-shrink: 0; }
+  .bar-val.pos { color: var(--green); }
+  .bar-val.neg { color: var(--red); }
+
+  /* ── Monthly Table ── */
+  .monthly-wrap { overflow-x: auto; margin-top: 28px; }
+  table.monthly {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    min-width: 900px;
+  }
+  table.monthly th {
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--text3);
+    padding: 5px 7px;
+    text-align: right;
+    border-bottom: 1px solid var(--border2);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+  table.monthly th.lh { text-align: left; }
+  table.monthly td {
+    padding: 6px 7px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  table.monthly td.lc {
+    text-align: left;
+    font-family: var(--font);
+    font-size: 11.5px;
+    font-weight: 500;
+  }
+  table.monthly tr.biz-row td { color: var(--green); }
+  table.monthly tr.biz-row td.lc { color: var(--text1); }
+  table.monthly tr.kyotu-row td { color: var(--red); background: var(--red-bg); }
+  table.monthly tr.kyotu-row td.lc { color: var(--red); }
+  table.monthly tr.total-row td { font-weight: 500; background: var(--bg2); border-top: 1px solid var(--border2); font-size: 11.5px; }
+  table.monthly tr.total-row td.lc { color: var(--text1); }
+  .cell-pos { color: var(--green) !important; font-weight: 500; }
+  .cell-neg { color: var(--red) !important; font-weight: 500; }
+  .cell-zero { color: var(--text3) !important; }
+
+  /* ── Insight Cards ── */
+  .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 28px; }
+  .insight-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    border-left-width: 3px;
+  }
+  .insight-card.green { border-left-color: var(--green); }
+  .insight-card.red   { border-left-color: var(--red); }
+  .insight-card.amber { border-left-color: var(--amber); }
+  .insight-card .ic-title { font-size: 12px; font-weight: 500; color: var(--text1); margin-bottom: 5px; }
+  .insight-card .ic-body { font-size: 11.5px; color: var(--text2); line-height: 1.7; }
+
+  /* ── Footer ── */
+  .dash-footer {
+    border-top: 1px solid var(--border);
+    padding: 12px 28px;
+    font-size: 11px;
+    color: var(--text3);
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+<div class="layout-wrap">
+
+<!-- Header -->
+<header class="header">
+  <div class="header-left">
+    <span class="logo">Benesse Taiwan</span>
+    <span style="color:var(--border2)">|</span>
+    <span class="header-title" data-ja="FY25 損益ダッシュボード" data-zh="FY25 損益儀表板">FY25 損益ダッシュボード</span>
+  </div>
+  <div class="header-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('ja')">JP</button>
+      <button class="lang-btn" onclick="setLang('zh')">中文</button>
+    </div>
+  </div>
+</header>
+
+<!-- Tab Bar -->
+<nav class="tabbar">
+  <div class="tab active" onclick="showTab('overview')" data-ja="事業別損益" data-zh="事業別損益">事業別損益</div>
+  <div class="tab" onclick="showTab('learning')" data-ja="学習商品" data-zh="學習商品">学習商品</div>
+  <div class="tab" onclick="showTab('monthly')" data-ja="月次推移" data-zh="月次趨勢">月次推移 <span class="tab-badge" data-ja="建設中" data-zh="建設中">建設中</span></div>
+  <div class="tab" onclick="showTab('cost')" data-ja="費用構造" data-zh="費用結構">費用構造 <span class="tab-badge" data-ja="建設中" data-zh="建設中">建設中</span></div>
+  <div class="tab" onclick="showTab('channel')" data-ja="ルート別" data-zh="通路別">ルート別 <span class="tab-badge" data-ja="建設中" data-zh="建設中">建設中</span></div>
+</nav>
+
+<!-- ══ PAGE: overview ══ -->
+<div class="page active" id="page-overview">
+
+  <!-- ① 売上構成 -->
+  <div style="margin-top:20px">
+    <div class="section-head" style="margin-top:0">
+      <span class="section-title" data-ja="① 売上構成 — 何で稼いでいるか" data-zh="① 營收結構 — 收入來源">① 売上構成 — 何で稼いでいるか</span>
+      <span class="section-note" data-ja="FY25実績　単位：百万NTD" data-zh="FY25實績　單位：百萬NTD">FY25実績　単位：百万NTD</span>
+    </div>
+    <div style="display:grid;grid-template-columns:3fr 2fr;gap:20px;align-items:center;margin-top:8px">
+      <div style="position:relative;height:260px">
+        <canvas id="cvs-rev-bar" role="img" aria-label="FY25事業別売上縦棒グラフ">舞台劇62.6M、学習商品57.5M、IPライセンス26.2M、周辺商品20.9M、巧連智數位7.3M、その他4.6M、Mirafeel2.0M</canvas>
+      </div>
+      <div style="position:relative;height:260px">
+        <canvas id="cvs-rev-pie" role="img" aria-label="FY25事業別売上円グラフ">合計181.1M</canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 事業別収益構造 -->
+  <div style="margin-top:28px">
+    <div class="section-head" style="margin-top:0">
+      <span class="section-title" data-ja="② 事業別 収益構造（売上→原価→費用→利益）" data-zh="② 事業別收益結構（營收→成本→費用→利益）">② 事業別 収益構造（売上→原価→費用→利益）</span>
+      <span class="section-note" data-ja="単位：百万NTD" data-zh="單位：百萬NTD">単位：百万NTD</span>
+    </div>
+    <div style="display:grid;grid-template-columns:3fr 2fr;gap:20px;align-items:center;margin-top:8px">
+      <div id="chart-biz" style="position:relative;height:260px">
+        <canvas id="cvs-biz" role="img" aria-label="事業別収益構造積み上げ棒グラフ">舞台劇・学習商品・IPライセンス等の原価・費用・事業利益の積み上げ</canvas>
+      </div>
+      <div>
+        <div class="section-head" style="margin-top:0">
+          <span class="section-title" data-ja="③ 共通費 91.6M の壁" data-zh="③ 共通費 91.6M 的重量">③ 共通費 91.6M の壁</span>
+          <span class="section-note" data-ja="内訳（百万NTD）" data-zh="細項（百萬NTD）">内訳（百万NTD）</span>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;margin-top:8px">
+          <div style="position:relative;width:160px;height:160px;flex-shrink:0">
+            <canvas id="cvs-kyotu" role="img" aria-label="共通費内訳">人件費46.6M、一般管理費28.0M、営業費用17.0M、計91.6M</canvas>
+          </div>
+          <div id="legend-kyotu" style="flex:1;min-width:0"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ④ 全社結果 -->
+  <div style="margin-top:28px">
+    <div class="section-head" style="margin-top:0">
+      <span class="section-title" data-ja="④ 全社結果 — 事業は稼いでいる" data-zh="④ 全社業績總覽">④ 全社結果 — 事業は稼いでいる</span>
+      <span class="section-note" data-ja="百万NTD" data-zh="百萬NTD">百万NTD</span>
+    </div>
+    <div id="chart-waterfall" style="position:relative;height:260px;margin-top:8px">
+      <canvas id="cvs-waterfall" role="img" aria-label="損益ウォーターフォール">事業利益83.5M、共通費▲91.6M、営業利益▲10.3M</canvas>
+    </div>
+  </div>
+
+  <!-- P&Lテーブル -->
+  <div style="margin-top:28px;">
+    <div class="section-head" style="margin-top:0">
+      <span class="section-title" data-ja="事業別損益計算書" data-zh="事業別損益表">事業別損益計算書</span>
+      <span class="section-note" data-ja="単位：百万NTD　共通費は全額共通計上（事業按分なし）" data-zh="單位：百萬NTD　共通費未按事業分攤">単位：百万NTD　共通費は全額共通計上（事業按分なし）</span>
+    </div>
+    <div style="margin-top:8px;">
+      <div class="pl-table-wrap">
+        <table class="pl">
+          <thead><tr>
+            <th class="lh" style="width:18%" data-ja="事業" data-zh="事業">事業</th>
+            <th data-ja="売上高" data-zh="營業收入">売上高</th>
+            <th data-ja="売上原価" data-zh="銷貨成本">売上原価</th>
+            <th data-ja="粗利" data-zh="毛利">粗利</th>
+            <th data-ja="粗利率" data-zh="毛利率">粗利率</th>
+            <th data-ja="営業費用" data-zh="營業費用">営業費用</th>
+            <th data-ja="一般管理費" data-zh="一般管理費">一般管理費</th>
+            <th data-ja="人件費" data-zh="人件費">人件費</th>
+            <th data-ja="営業利益" data-zh="營業利益">営業利益</th>
+            <th data-ja="利益率" data-zh="利益率">利益率</th>
+          </tr></thead>
+          <tbody>
+            <tr class="profit-row"><td class="lc" data-ja="学習商品" data-zh="學習商品">学習商品</td><td>57.5</td><td>21.1</td><td class="val-pos">36.4</td><td>63.4%</td><td>9.2</td><td>0.0</td><td>—</td><td class="val-pos">27.3</td><td class="val-pos">47.5%</td></tr>
+            <tr class="profit-row"><td class="lc" data-ja="周辺商品" data-zh="周邊商品">周辺商品</td><td>20.9</td><td>10.4</td><td class="val-pos">10.5</td><td>50.3%</td><td>3.8</td><td>0.0</td><td>—</td><td class="val-pos">6.7</td><td class="val-pos">32.1%</td></tr>
+            <tr class="profit-row"><td class="lc">Mirafeel</td><td>2.0</td><td>1.1</td><td class="val-pos">0.9</td><td>45.3%</td><td>0.6</td><td>0.0</td><td>—</td><td class="val-pos">0.3</td><td class="val-pos">15.0%</td></tr>
+            <tr class="profit-row"><td class="lc" data-ja="IPライセンス" data-zh="授權金">IPライセンス</td><td>26.2</td><td>1.9</td><td class="val-pos">24.3</td><td>92.6%</td><td>3.9</td><td>0.1</td><td>—</td><td class="val-pos">20.3</td><td class="val-pos">77.5%</td></tr>
+            <tr class="profit-row"><td class="lc" data-ja="舞台劇" data-zh="舞台劇">舞台劇</td><td>62.6</td><td>28.2</td><td class="val-pos">34.4</td><td>54.9%</td><td>3.4</td><td>3.0</td><td>0.3</td><td class="val-pos">27.7</td><td class="val-pos">44.2%</td></tr>
+            <tr class="loss-row"><td class="lc" data-ja="巧連智數位（縮小中）" data-zh="巧連智數位（縮減中）">巧連智數位（縮小中）</td><td>7.3</td><td>0.5</td><td class="val-pos">6.8</td><td>93.6%</td><td>7.4</td><td>0.3</td><td>—</td><td class="val-neg">▲0.8</td><td class="val-neg">—</td></tr>
+            <tr class="loss-row"><td class="lc" data-ja="その他" data-zh="其他">その他</td><td>4.6</td><td>2.5</td><td class="val-pos">2.1</td><td>45.7%</td><td>2.1</td><td>0.0</td><td>—</td><td class="val-neg">▲0.1</td><td class="val-neg">—</td></tr>
+            <tr class="subtotal-row"><td class="lc" data-ja="事業計" data-zh="事業合計">事業計</td><td>181.1</td><td>64.6</td><td class="val-pos">116.5</td><td>64.3%</td><td>26.4</td><td>3.4</td><td>0.3</td><td class="val-pos">86.4</td><td class="val-pos">47.7%</td></tr>
+            <tr class="kyotu-row"><td class="lc" data-ja="共通費（負担）" data-zh="共通費（負擔）">共通費（負担）</td><td>—</td><td>▲7.6</td><td>+7.6</td><td>—</td><td>24.6</td><td>28.0</td><td>46.6</td><td class="val-neg">▲91.6</td><td>—</td></tr>
+            <tr class="total-row"><td class="lc" data-ja="全社計" data-zh="全公司合計">全社計</td><td>181.1</td><td>58.0</td><td class="val-pos">123.1</td><td>68.0%</td><td>55.0</td><td>31.5</td><td>46.9</td><td class="val-neg">▲10.3</td><td class="val-neg">—</td></tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<!-- ══ PAGE: learning ══ -->
+<div class="page" id="page-learning">
+  <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin:0 -28px;padding:0 28px;">
+    <div class="subtab active" onclick="showSubtab('sku')" data-ja="①商品別売上" data-zh="①商品別銷售">①商品別売上</div>
+    <div class="subtab" onclick="showSubtab('price')" data-ja="②単価分析" data-zh="②單價分析">②単価分析</div>
+    <div class="subtab" onclick="showSubtab('ch')" data-ja="③ルート別" data-zh="③通路別">③ルート別</div>
+    <div class="subtab" onclick="showSubtab('cross')" data-ja="④ルート別ランキング" data-zh="④通路別排名">④ルート別ランキング</div>
+    <div class="subtab" onclick="showSubtab('trend')" data-ja="⑤月次推移" data-zh="⑤月次趨勢">⑤月次推移</div>
+    <div class="subtab" onclick="showSubtab('bcl')" data-ja="⑥月齢分析" data-zh="⑥月齡分析">⑥月齢分析</div>
+    <div class="subtab" onclick="showSubtab('yn')" data-ja="⑦新旧顧客" data-zh="⑦新舊顧客">⑦新旧顧客</div>
+  </div>
+
+  <!-- ① 商品別売上 -->
+  <div class="subpage active" id="sub-sku" style="padding-top:20px;">
+    <div class="kpi-strip" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px;">
+      <div class="kpi-card">
+        <div class="kpi-label" data-ja="FY25 主力商品合計" data-zh="FY25 主力商品合計">FY25 主力商品合計</div>
+        <div class="kpi-value">58.3<span style="font-size:13px;color:var(--text3);font-family:var(--font);font-weight:400">M</span></div>
+        <div class="kpi-sub">NTD</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label" data-ja="FY24 同商品合計" data-zh="FY24 同商品合計">FY24 同商品合計</div>
+        <div class="kpi-value">56.6<span style="font-size:13px;color:var(--text3);font-family:var(--font);font-weight:400">M</span></div>
+        <div class="kpi-sub">NTD</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label" data-ja="前年比" data-zh="年增率">前年比</div>
+        <div class="kpi-value pos">+3.0%</div>
+        <div class="kpi-sub">+1.7M NTD</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label" data-ja="FY25新商品5点合計" data-zh="FY25新品5點合計">FY25新商品5点合計</div>
+        <div class="kpi-value pos">26.4<span style="font-size:13px;color:var(--text3);font-family:var(--font);font-weight:400">M</span></div>
+        <div class="kpi-sub" data-ja="うち新商品5点" data-zh="其中新品5點">うち新商品5点</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label" data-ja="FY25 平均単価" data-zh="FY25 平均單價">FY25 平均単価</div>
+        <div class="kpi-value neg">2,999</div>
+        <div class="kpi-sub" data-ja="FY24比 ▲558 NTD" data-zh="FY24比 ▲558 NTD">FY24比 ▲558 NTD</div>
+      </div>
+    </div>
+    <div class="section-head">
+      <span class="section-title" data-ja="売上・数量・単価（FY24 vs FY25）" data-zh="銷售額・數量・單價（FY24 vs FY25）">売上・数量・単価（FY24 vs FY25）</span>
+      <span class="section-note" data-ja="定価順（廃番5商品含む）　単位：千NTD　同梱品除外" data-zh="依定價排序（含5停產商品）　單位：千NTD　已排除零元同捆品">定価順（廃番5商品含む）　単位：千NTD　同梱品除外</span>
+    </div>
+    <div id="sku-table-wrap" class="pl-table-wrap"></div>
+  </div>
+
+  <!-- ② 単価分析 -->
+  <div class="subpage" id="sub-price" style="padding-top:20px;">
+    <div class="section-head">
+      <span class="section-title" data-ja="単価分析 — FY24 vs FY25" data-zh="單價分析 — FY24 vs FY25">単価分析 — FY24 vs FY25</span>
+      <span class="section-note" data-ja="単価下落はSKUミックスの価格帯シフトが主因（値引きではない）" data-zh="單價下降主因為商品組合價格帶位移（非折扣）">単価下落はSKUミックスの価格帯シフトが主因（値引きではない）</span>
+    </div>
+    <div id="price-content"></div>
+  </div>
+
+  <!-- ③ ルート別 -->
+  <div class="subpage" id="sub-ch" style="padding-top:20px;">
+    <div class="section-head">
+      <span class="section-title" data-ja="ルート別売上（FY25実績 vs FY24）" data-zh="通路別銷售（FY25實績 vs FY24）">ルート別売上（FY25実績 vs FY24）</span>
+      <span class="section-note" data-ja="主力商品合計　スパーク＝月次推移（4月→3月）" data-zh="主力商品合計　直條圖＝月次（4月→3月）">主力商品合計　スパーク＝月次推移（4月→3月）</span>
+    </div>
+    <div id="ch-content"></div>
+  </div>
+
+  <!-- ④ ルート別ランキング -->
+  <div class="subpage" id="sub-cross" style="padding-top:20px;">
+    <div class="section-head">
+      <span class="section-title" data-ja="ルート別 上位商品ランキング（FY25）" data-zh="通路別 前10商品排名（FY25）">ルート別 上位商品ランキング（FY25）</span>
+      <span class="section-note" data-ja="各ルート上位10商品　単位：千NTD" data-zh="各通路前10商品　單位：千NTD">各ルート上位10商品　単位：千NTD</span>
+    </div>
+    <div id="cross-table-wrap" class="pl-table-wrap"></div>
+  </div>
+
+  <!-- ⑤ 月次推移 -->
+  <div class="subpage" id="sub-trend" style="padding-top:20px;">
+    <div class="section-head">
+      <span class="section-title" data-ja="商品別 月次売上推移（FY24/4〜FY25/3）" data-zh="商品別 月次銷售趨勢（FY24/4〜FY25/3）">商品別 月次売上推移（FY24/4〜FY25/3）</span>
+      <span class="section-note" data-ja="単位：千NTD　縦軸は商品ごとに独立" data-zh="單位：千NTD　縱軸各商品獨立">単位：千NTD　縦軸は商品ごとに独立</span>
+    </div>
+    <div id="trend-content"></div>
+  </div>
+
+  <!-- ⑦ 新旧顧客 -->
+  <div class="subpage" id="sub-yn" style="padding-top:20px;">
+    <div class="section-head">
+      <span class="section-title" data-ja="新旧顧客構成（月別・FY24→FY25）" data-zh="新舊顧客結構（月別・FY24→FY25）">新旧顧客構成（月別・FY24→FY25）</span>
+      <span class="section-note" data-ja="Y＝過去の月刊購読者　N＝新顧客" data-zh="Y＝曾訂閱月刊之顧客　N＝新顧客">Y＝過去の月刊購読者　N＝新顧客</span>
+    </div>
+    <div id="yn-content"></div>
+  </div>
+
+  <!-- ⑥ 月齢分析 -->
+  <div class="subpage" id="sub-bcl" style="padding-top:20px;">
+    <div class="section-head">
+      <span class="section-title" data-ja="販売対象月齢の構成変化（FY24→FY25）" data-zh="銷售目標月齡結構變化（FY24→FY25）">販売対象月齢の構成変化（FY24→FY25）</span>
+      <span class="section-note" data-ja="BCL活化開始月齢ベース　點讀巧比・閱讀橋樑書等3商品は月齢データなし" data-zh="以BCL活化開始月齡為基準　3商品無月齡資料">BCL活化開始月齢ベース　點讀巧比・閱讀橋樑書等3商品は月齢データなし</span>
+    </div>
+    <div id="bcl-content"></div>
+  </div>
+
+</div>
+
+<!-- ══ PAGE: monthly (placeholder) ══ -->
+<div class="page" id="page-monthly">
+  <div style="padding:60px 0; text-align:center; color:var(--text3); font-size:13px;">
+    <div style="font-size:32px; margin-bottom:12px; letter-spacing:-0.02em; color:var(--text2)">月次推移</div>
+    <div data-ja="次のタブとして追加予定" data-zh="預計作為下一個分頁新增">次のタブとして追加予定</div>
+  </div>
+</div>
+<!-- ══ PAGE: cost (placeholder) ══ -->
+<div class="page" id="page-cost">
+  <div style="padding:60px 0; text-align:center; color:var(--text3); font-size:13px;">
+    <div style="font-size:32px; margin-bottom:12px; letter-spacing:-0.02em; color:var(--text2)">費用構造</div>
+    <div data-ja="次のタブとして追加予定" data-zh="預計作為下一個分頁新增">次のタブとして追加予定</div>
+  </div>
+</div>
+<!-- ══ PAGE: channel (placeholder) ══ -->
+<div class="page" id="page-channel">
+  <div style="padding:60px 0; text-align:center; color:var(--text3); font-size:13px;">
+    <div style="font-size:32px; margin-bottom:12px; letter-spacing:-0.02em; color:var(--text2)">ルート別</div>
+    <div data-ja="次のタブとして追加予定" data-zh="預計作為下一個分頁新增">次のタブとして追加予定</div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="dash-footer">
+  <span data-ja="Benesse Corporation Taiwan Branch — 経営管理用（社外秘）" data-zh="Benesse Corporation 台灣分公司 — 經營管理用（僅供內部）">Benesse Corporation Taiwan Branch — 経営管理用（社外秘）</span>
+  <span>FY25 実績　2025年4月〜2026年3月</span>
+</footer>
+
+<style>
+  .subtab { padding:9px 16px; font-size:12px; font-weight:400; color:var(--text2); cursor:pointer; border-bottom:2px solid transparent; transition:color .15s,border-color .15s; white-space:nowrap; user-select:none; }
+  .subtab:hover { color:var(--text1); }
+  .subtab.active { color:var(--text1); font-weight:500; border-bottom-color:var(--blue); }
+  .subpage { display:none; }
+  .subpage.active { display:block; }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+  let currentLang = 'ja';
+
+  const YN_DATA = {"months": ["202404", "202405", "202406", "202407", "202408", "202409", "202410", "202411", "202412", "202501", "202502", "202503", "202504", "202505", "202506", "202507", "202508", "202509", "202510", "202511", "202512", "202601", "202602", "202603"], "months_label": ["FY24/4月", "FY24/5月", "FY24/6月", "FY24/7月", "FY24/8月", "FY24/9月", "FY24/10月", "FY24/11月", "FY24/12月", "FY24/1月", "FY24/2月", "FY24/3月", "FY25/4月", "FY25/5月", "FY25/6月", "FY25/7月", "FY25/8月", "FY25/9月", "FY25/10月", "FY25/11月", "FY25/12月", "FY25/1月", "FY25/2月", "FY25/3月"], "y": [549, 518, 482, 1658, 931, 269, 789, 666, 787, 350, 600, 408, 303, 958, 547, 481, 369, 224, 395, 286, 257, 319, 170, 895], "n": [42, 50, 30, 1248, 267, 103, 768, 588, 498, 269, 370, 352, 387, 1023, 504, 438, 459, 366, 687, 778, 472, 937, 682, 1330], "total": [591, 568, 512, 2906, 1198, 372, 1557, 1254, 1285, 619, 970, 760, 690, 1981, 1051, 919, 828, 590, 1082, 1064, 729, 1256, 852, 2225], "y_pct": [92.9, 91.2, 94.1, 57.1, 77.7, 72.3, 50.7, 53.1, 61.2, 56.5, 61.9, 53.7, 43.9, 48.4, 52.0, 52.3, 44.6, 38.0, 36.5, 26.9, 35.3, 25.4, 20.0, 40.2], "n_pct": [7.1, 8.8, 5.9, 42.9, 22.3, 27.7, 49.3, 46.9, 38.8, 43.5, 38.1, 46.3, 56.1, 51.6, 48.0, 47.7, 55.4, 62.0, 63.5, 73.1, 64.7, 74.6, 80.0, 59.8], "fy24": {"y": 8007, "n": 4585, "total": 12592, "y_pct": 63.6, "n_pct": 36.4}, "fy25": {"y": 5204, "n": 8063, "total": 13267, "y_pct": 39.2, "n_pct": 60.8}, "split_idx": 12};
+
+  const TREND_DATA = {"trend": [{"code": "20250FD00", "ja": "語彙表達・智育套組", "zh": "語彙表達・智育套組", "price": 4900, "new25": true, "bcl": 18, "monthly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1768793, 1698699, 821391, 1292757, 532038, 1036074], "total_fy24": 0, "total_fy25": 7149752, "launch_idx": 18}, {"code": "20230MY00", "ja": "英語Plus（初階）", "zh": "英語Plus（初階）", "price": 4800, "new25": false, "bcl": 30, "monthly": [0, 0, 0, 11866320, 4639567, 1613583, 1627277, 1140083, 1403297, 653655, 804496, 809068, 644511, 1298165, 489097, 585088, 769108, 598802, 671937, 859348, 484527, 425103, 339041, 690221], "total_fy24": 24557346, "total_fy25": 7854948, "launch_idx": 3}, {"code": "20220MY00", "ja": "英語（進階）", "zh": "英語（進階）", "price": 4500, "new25": false, "bcl": 42, "monthly": [1268653, 1238653, 1217223, 2160144, 1410094, 600033, 552894, 407170, 415742, 282876, 317164, 351452, 308592, 445744, 214299, 227158, 340153, 248588, 287162, 274304, 338594, 244302, 202733, 312878], "total_fy24": 10222098, "total_fy25": 3444507, "launch_idx": 0}, {"code": "20240FA00", "ja": "寶寶生活好習慣套組", "zh": "寶寶生活好習慣套組", "price": 4299, "new25": false, "bcl": 13, "monthly": [0, 0, 0, 0, 0, 0, 1724335, 983700, 955908, 492706, 583913, 733921, 826030, 2476835, 686846, 362837, 512606, 454434, 511750, 671796, 368461, 483092, 381982, 487186], "total_fy24": 5474483, "total_fy25": 8223855, "launch_idx": 6}, {"code": "20250FG00", "ja": "學數學套組", "zh": "學數學套組", "price": 3200, "new25": true, "bcl": 49, "monthly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3407648], "total_fy24": 0, "total_fy25": 3407648, "launch_idx": 23}, {"code": "20240FM00", "ja": "注音拼音套組2.0", "zh": "注音套組2.0", "price": 3200, "new25": false, "bcl": 54, "monthly": [0, 0, 0, 0, 0, 0, 0, 993646, 1400850, 262128, 871725, 563880, 484631, 1712826, 475471, 384048, 374904, 387095, 597408, 396240, 377952, 435864, 243839, 530352], "total_fy24": 4092229, "total_fy25": 6400630, "launch_idx": 7}, {"code": "20250FF00", "ja": "聰明左右腦點讀大冒險", "zh": "聰明左右腦點讀大冒險", "price": 2999, "new25": true, "bcl": 37, "monthly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2236249], "total_fy24": 0, "total_fy25": 2236249, "launch_idx": 23}, {"code": "20250FE00", "ja": "巧虎雙語點讀圖鑑", "zh": "巧虎雙語點讀圖鑑", "price": 2399, "new25": true, "bcl": 6, "monthly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1703023, 1358659, 1287788], "total_fy24": 0, "total_fy25": 4349470, "launch_idx": 21}, {"code": "20250FA00", "ja": "好情緒EQ套組", "zh": "好情緒EQ套組", "price": 2199, "new25": true, "bcl": 25, "monthly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2770368, 1300375, 1049097, 995466, 81666, 676365, 573757, 435554, 492092, 284785, 552817], "total_fy24": 0, "total_fy25": 9212342, "launch_idx": 13}, {"code": "20240FC00", "ja": "點讀巧比思考力遊戲組", "zh": "點讀巧比思考力遊戲組", "price": 1980, "new25": false, "bcl": null, "monthly": [0, 0, 0, 0, 0, 0, 559111, 665081, 691725, 528361, 668323, 603206, 590240, 993888, 542640, 413167, 448583, 470288, 449344, 700672, 496946, 13331, 15410, 0], "total_fy24": 3715807, "total_fy25": 5134509, "launch_idx": 6}, {"code": "20250FXAC", "ja": "巧連智閱讀橋樑書1-3", "zh": "巧連智閱讀橋樑書1-3", "price": 2286, "new25": true, "bcl": null, "monthly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 80010, 144018, 68580, 38862, 36576, 50292, 25146, 32004, 20574, 48006], "total_fy24": 0, "total_fy25": 544068, "launch_idx": 14}, {"code": "20250FXAB", "ja": "巧連智精選世界名著1-3", "zh": "巧連智精選世界名著1-3", "price": 3143, "new25": true, "bcl": null, "monthly": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 75432, 94290, 22001, 9429, 18858, 22001, 9429, 18858, 15715, 25144], "total_fy24": 0, "total_fy25": 311157, "launch_idx": 14}], "months_all": ["202404", "202405", "202406", "202407", "202408", "202409", "202410", "202411", "202412", "202501", "202502", "202503", "202504", "202505", "202506", "202507", "202508", "202509", "202510", "202511", "202512", "202601", "202602", "202603"], "months_label": ["FY24/4", "FY24/5", "FY24/6", "FY24/7", "FY24/8", "FY24/9", "FY24/10", "FY24/11", "FY24/12", "FY25/1", "FY25/2", "FY25/3", "FY25/4", "FY25/5", "FY25/6", "FY25/7", "FY25/8", "FY25/9", "FY25/10", "FY25/11", "FY25/12", "FY26/1", "FY26/2", "FY26/3"], "bcl_bands_fy24": {"0-12M": 0, "13-24M": 5474483, "25-36M": 24557346, "37-48M": 10222098, "49M+": 4092229, "不明": 3715807}, "bcl_bands_fy25": {"0-12M": 4349470, "13-24M": 15373607, "25-36M": 17067290, "37-48M": 5680756, "49M+": 9808278, "不明": 5989734}, "avg_bcl_fy24": 32.9, "avg_bcl_fy25": 28.1};
+
+  const DATA = {"sku": [{"code": "20250FD00", "ja": "語彙表達・智育套組", "zh": "語彙表達・智育套組", "price": 4900, "new25": true, "disc": false, "a24": 0, "q24": 0, "p24": 0, "a25": 7149752, "q25": 1532, "p25": 4667, "diff_a": 7149752, "ch_a25": {"WEB": 2384836, "TM": 2216824, "KOL": 2160820, "EC": 387272, "其他": 0}, "m_a25": [0, 0, 0, 0, 0, 0, 1768793, 1698699, 821391, 1292757, 532038, 1036074], "m_a24": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"code": "20230MY00", "ja": "英語Plus（初階）", "zh": "英語Plus（初階）", "price": 4800, "new25": false, "disc": false, "a24": 24557346, "q24": 5379, "p24": 4565, "a25": 7854948, "q25": 1724, "p25": 4556, "diff_a": -16702398, "ch_a25": {"WEB": 2107232, "TM": 3071713, "KOL": 1887824, "EC": 575947, "其他": 212232}, "m_a25": [644511, 1298165, 489097, 585088, 769108, 598802, 671937, 859348, 484527, 425103, 339041, 690221], "m_a24": [0, 0, 0, 11866320, 4639567, 1613583, 1627277, 1140083, 1403297, 653655, 804496, 809068]}, {"code": "20220MY00", "ja": "英語（進階）", "zh": "英語（進階）", "price": 4500, "new25": false, "disc": false, "a24": 10222098, "q24": 2385, "p24": 4286, "a25": 3444507, "q25": 807, "p25": 4268, "diff_a": -6777591, "ch_a25": {"WEB": 582896, "TM": 1971559, "KOL": 548608, "EC": 180012, "其他": 161432}, "m_a25": [308592, 445744, 214299, 227158, 340153, 248588, 287162, 274304, 338594, 244302, 202733, 312878], "m_a24": [1268653, 1238653, 1217223, 2160144, 1410094, 600033, 552894, 407170, 415742, 282876, 317164, 351452]}, {"code": "20240FA00", "ja": "寶寶生活好習慣套組", "zh": "寶寶生活好習慣套組", "price": 4299, "new25": false, "disc": false, "a24": 5474483, "q24": 1348, "p24": 4061, "a25": 8223855, "q25": 2007, "p25": 4098, "diff_a": 2749372, "ch_a25": {"WEB": 1981497, "TM": 1915995, "KOL": 2345863, "EC": 759169, "其他": 1221331}, "m_a25": [826030, 2476835, 686846, 362837, 512606, 454434, 511750, 671796, 368461, 483092, 381982, 487186], "m_a24": [0, 0, 0, 0, 0, 0, 1724335, 983700, 955908, 492706, 583913, 733921]}, {"code": "20250FG00", "ja": "學數學套組", "zh": "學數學套組", "price": 3200, "new25": true, "disc": false, "a24": 0, "q24": 0, "p24": 0, "a25": 3407648, "q25": 1118, "p25": 3048, "diff_a": 3407648, "ch_a25": {"WEB": 935734, "TM": 816862, "KOL": 1514845, "EC": 140207, "其他": 0}, "m_a25": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3407648], "m_a24": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"code": "20240FM00", "ja": "注音拼音套組2.0", "zh": "注音套組2.0", "price": 3200, "new25": false, "disc": false, "a24": 4092229, "q24": 1349, "p24": 3034, "a25": 6400630, "q25": 2100, "p25": 3048, "diff_a": 2308401, "ch_a25": {"WEB": 1182622, "TM": 2673094, "KOL": 612648, "EC": 606552, "其他": 1325714}, "m_a25": [484631, 1712826, 475471, 384048, 374904, 387095, 597408, 396240, 377952, 435864, 243839, 530352], "m_a24": [0, 0, 0, 0, 0, 0, 0, 993646, 1400850, 262128, 871725, 563880]}, {"code": "20250FF00", "ja": "聰明左右腦點讀大冒險", "zh": "聰明左右腦點讀大冒險", "price": 2999, "new25": true, "disc": false, "a24": 0, "q24": 0, "p24": 0, "a25": 2236249, "q25": 783, "p25": 2856, "diff_a": 2236249, "ch_a25": {"WEB": 796824, "TM": 611184, "KOL": 725425, "EC": 102816, "其他": 0}, "m_a25": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2236249], "m_a24": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"code": "20250FE00", "ja": "巧虎雙語點讀圖鑑", "zh": "巧虎雙語點讀圖鑑", "price": 2399, "new25": true, "disc": false, "a24": 0, "q24": 0, "p24": 0, "a25": 4349470, "q25": 1918, "p25": 2268, "diff_a": 4349470, "ch_a25": {"WEB": 1533235, "TM": 719775, "KOL": 1400705, "EC": 685625, "其他": 10130}, "m_a25": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1703023, 1358659, 1287788], "m_a24": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"code": "20250FA00", "ja": "好情緒EQ套組", "zh": "好情緒EQ套組", "price": 2199, "new25": true, "disc": false, "a24": 0, "q24": 0, "p24": 0, "a25": 9212342, "q25": 4407, "p25": 2090, "diff_a": 9212342, "ch_a25": {"WEB": 2657290, "TM": 3411134, "KOL": 2215458, "EC": 795725, "其他": 132735}, "m_a25": [0, 2770368, 1300375, 1049097, 995466, 81666, 676365, 573757, 435554, 492092, 284785, 552817], "m_a24": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"code": "20240FC00", "ja": "點讀巧比思考力遊戲組", "zh": "點讀巧比思考力遊戲組", "price": 1980, "new25": false, "disc": false, "a24": 3715807, "q24": 1881, "p24": 1975, "a25": 5134509, "q25": 2693, "p25": 1907, "diff_a": 1418702, "ch_a25": {"WEB": 1464175, "TM": 1483216, "KOL": 1142400, "EC": 1014837, "其他": 29881}, "m_a25": [590240, 993888, 542640, 413167, 448583, 470288, 449344, 700672, 496946, 13331, 15410, 0], "m_a24": [0, 0, 0, 0, 0, 0, 559111, 665081, 691725, 528361, 668323, 603206]}, {"code": "20250FXAC", "ja": "巧連智閱讀橋樑書1-3", "zh": "巧連智閱讀橋樑書1-3", "price": 2286, "new25": true, "disc": false, "a24": 0, "q24": 0, "p24": 0, "a25": 544068, "q25": 238, "p25": 2286, "diff_a": 544068, "ch_a25": {"WEB": 82296, "TM": 443484, "KOL": 18288, "EC": 0, "其他": 0}, "m_a25": [0, 0, 80010, 144018, 68580, 38862, 36576, 50292, 25146, 32004, 20574, 48006], "m_a24": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"code": "20250FXAB", "ja": "巧連智精選世界名著1-3", "zh": "巧連智精選世界名著1-3", "price": 3143, "new25": true, "disc": false, "a24": 0, "q24": 0, "p24": 0, "a25": 311157, "q25": 99, "p25": 3143, "diff_a": 311157, "ch_a25": {"WEB": 75432, "TM": 223153, "KOL": 12572, "EC": 0, "其他": 0}, "m_a25": [0, 0, 75432, 94290, 22001, 9429, 18858, 22001, 9429, 18858, 15715, 25144], "m_a24": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"code": "20200FB00", "ja": "九九乘法偵探套組", "zh": "九九乘法偵探套組", "price": 2381, "new25": false, "disc": true, "a24": 3090538, "q24": 1299, "p24": 2379, "a25": 21429, "q25": 9, "p25": 2381, "diff_a": -3069109, "ch_a25": {"WEB": 0, "TM": 21429, "KOL": 0, "EC": 0, "其他": 0}, "m_a25": [21429, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "m_a24": [283339, 340483, 819064, 400008, 278577, 97621, 100002, 109526, 154765, 133336, 188099, 185718]}, {"code": "20240FXAE", "ja": "點讀巧比+購物遊戲組", "zh": "點讀巧比+購物遊戲組", "price": 2285, "new25": false, "disc": true, "a24": 2892809, "q24": 1266, "p24": 2285, "a25": 0, "q25": 0, "p25": 0, "diff_a": -2892809, "ch_a25": {"WEB": 0, "TM": 0, "KOL": 0, "EC": 0, "其他": 0}, "m_a25": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "m_a24": [0, 0, 0, 0, 0, 0, 1825715, 504985, 562109, 0, 0, 0]}, {"code": "20200FA00", "ja": "注音拼音學習套組", "zh": "注音拼音學習套組", "price": 2378, "new25": false, "disc": true, "a24": 1707177, "q24": 718, "p24": 2378, "a25": 0, "q25": 0, "p25": 0, "diff_a": -1707177, "ch_a25": {"WEB": 0, "TM": 0, "KOL": 0, "EC": 0, "其他": 0}, "m_a25": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "m_a24": [747634, 904780, 54763, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"code": "20201MY00", "ja": "英語套組（初階・旧）", "zh": "英語套組（初階・舊）", "price": 4286, "new25": false, "disc": true, "a24": 432886, "q24": 101, "p24": 4286, "a25": 0, "q25": 0, "p25": 0, "diff_a": -432886, "ch_a25": {"WEB": 0, "TM": 0, "KOL": 0, "EC": 0, "其他": 0}, "m_a25": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "m_a24": [428600, 4286, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, {"code": "20240FXAK", "ja": "點讀巧比+餐廳遊戲組", "zh": "點讀巧比+餐廳遊戲組", "price": 2190, "new25": false, "disc": true, "a24": 389819, "q24": 178, "p24": 2190, "a25": 0, "q25": 0, "p25": 0, "diff_a": -389819, "ch_a25": {"WEB": 0, "TM": 0, "KOL": 0, "EC": 0, "其他": 0}, "m_a25": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "m_a24": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 291270, 98549]}], "ch_summary": [{"ch": "WEB", "color": "#1a5496", "a24": 12805568, "q24": 3763, "p24": 3403, "a25": 15784069, "q25": 5335, "p25": 2959, "diff_p": -444, "diff_pct": -13.0, "diff_a": 2978501, "diff_a_pct": 23.3, "diff_q": 1572, "diff_q_pct": 41.8, "m_a25": [748077, 1680425, 1070070, 1009260, 919280, 510562, 1541298, 1587047, 1295016, 1259648, 1279806, 2883580], "m_a24": [520976, 430495, 392878, 2520210, 1458857, 510926, 1752527, 1718276, 1427399, 518088, 994553, 560383]}, {"ch": "TM", "color": "#1d7a5f", "a24": 21127038, "q24": 6029, "p24": 3504, "a25": 19579422, "q25": 6428, "p25": 3046, "diff_p": -458, "diff_pct": -13.1, "diff_a": -1547616, "diff_a_pct": -7.3, "diff_q": 399, "diff_q_pct": 6.6, "m_a25": [1449977, 1963501, 1684325, 1455560, 1470141, 1043357, 1910534, 1586605, 1588125, 1683233, 973777, 2770287], "m_a24": [1937237, 1570548, 1552926, 3236038, 3123088, 1051380, 679062, 1631227, 1935467, 1106027, 1708760, 1595278]}, {"ch": "KOL", "color": "#96600a", "a24": 18376329, "q24": 4739, "p24": 3878, "a25": 14585456, "q25": 4812, "p25": 3031, "diff_p": -847, "diff_pct": -21.8, "diff_a": -3790873, "diff_a_pct": -20.6, "diff_q": 73, "diff_q_pct": 1.5, "m_a25": [350891, 3461881, 267532, 292386, 410921, 476049, 1126539, 1515062, 121210, 1931945, 414014, 4217026], "m_a24": [168103, 424299, 110959, 8567177, 1541446, 309319, 3319540, 690229, 1602099, 484913, 586796, 571449]}, {"ch": "EC", "color": "#7a3d96", "a24": 3160007, "q24": 1024, "p24": 3086, "a25": 5248162, "q25": 1937, "p25": 2709, "diff_p": -377, "diff_pct": -12.2, "diff_a": 2088155, "diff_a_pct": 66.1, "diff_q": 913, "diff_q_pct": 89.2, "m_a25": [303539, 408629, 538665, 498403, 388071, 259196, 439822, 558395, 353649, 265600, 490723, 743470], "m_a24": [0, 0, 0, 20001, 171039, 128659, 632207, 757984, 333373, 244034, 430310, 442400]}, {"ch": "其他", "color": "#9c9a94", "a24": 1106250, "q24": 349, "p24": 3170, "a25": 3093455, "q25": 923, "p25": 3352, "diff_p": 182, "diff_pct": 5.7, "diff_a": 1987205, "diff_a_pct": 179.6, "diff_q": 574, "diff_q_pct": 164.5, "m_a25": [22949, 2183390, 303578, 4094, 342988, 0, 0, 0, 0, 0, 236456, 0], "m_a24": [101910, 62860, 34287, 83046, 33808, 310953, 5998, 6475, 286058, 0, 4571, 176284]}], "monthly_price": [{"label": "4月", "p24": 3291, "p25": 3224, "q24": 829, "q25": 892}, {"label": "5月", "p24": 3061, "p25": 2854, "q24": 813, "q25": 3398}, {"label": "6月", "p24": 3207, "p25": 2678, "q24": 652, "q25": 1443}, {"label": "7月", "p24": 4413, "p25": 2703, "q24": 3269, "q25": 1206}, {"label": "8月", "p24": 4323, "p25": 2805, "q24": 1464, "q25": 1259}, {"label": "9月", "p24": 4304, "p25": 3123, "q24": 537, "q25": 733}, {"label": "10月", "p24": 3198, "p25": 3357, "q24": 1998, "q25": 1495}, {"label": "11月", "p24": 3184, "p25": 3319, "q24": 1509, "q25": 1581}, {"label": "12月", "p24": 3125, "p25": 3180, "q24": 1787, "q25": 1056}, {"label": "1月", "p24": 3150, "p25": 3015, "q24": 747, "q25": 1705}, {"label": "2月", "p24": 3019, "p25": 2902, "q24": 1234, "q25": 1170}, {"label": "3月", "p24": 3142, "p25": 3035, "q24": 1065, "q25": 3497}], "ch_order": ["WEB", "TM", "KOL", "EC", "其他"], "ch_colors": {"WEB": "#1a5496", "TM": "#1d7a5f", "KOL": "#96600a", "EC": "#7a3d96", "其他": "#9c9a94"}, "months_label": ["4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "1月", "2月", "3月"], "total": {"q24": 15904, "a24": 56575192, "p24": 3557, "q25": 19435, "a25": 58290564, "p25": 2999, "diff_q": 3531, "diff_a": 1715372, "diff_p": -558}};
+
+  const CH_LABEL={"ja":{"WEB":"WEB","TM":"TM","KOL":"KOL","EC":"EC","其他":"其他"},"zh":{"WEB":"WEB","TM":"TM","KOL":"KOL","EC":"EC","其他":"其他"}};
+  const CH_COLORS=DATA.ch_colors;
+
+  function fmtK(n){return Math.round(n/1000).toLocaleString();}
+  function fmtP(n){return n.toLocaleString();}
+
+  function buildSkuTable(){
+    const isJa=currentLang==='ja';
+    const chs=DATA.ch_order;
+    let html=`<table class="pl" style="min-width:780px"><thead><tr>
+      <th class="lh" style="width:2%">#</th>
+      <th class="lh" style="width:20%">${isJa?'商品名':'商品名稱'}</th>
+      <th>${isJa?'定価':'定價'}</th>
+      <th>${isJa?'FY25売上(千)':'FY25銷售(千)'}</th>
+      <th style="width:14%">${isJa?'ルート内訳':'通路分佈'}</th>
+      <th>${isJa?'FY25数量':'FY25數量'}</th>
+      <th>${isJa?'FY25単価':'FY25單價'}</th>
+      <th>${isJa?'FY24売上(千)':'FY24銷售(千)'}</th>
+      <th>${isJa?'前年差(千)':'年度差(千)'}</th>
+    </tr></thead><tbody>`;
+    const sortedSku=[...DATA.sku].sort((a,b)=>{
+      if(a.disc!==b.disc) return a.disc?1:-1;
+      return b.a25-a.a25;
+    });
+    sortedSku.forEach((s,i)=>{
+      const name=isJa?s.ja:s.zh;
+      const dCls=s.diff_a>=0?'val-pos':'val-neg';
+      const dStr=(s.diff_a>=0?'+':'')+fmtK(s.diff_a);
+      let bar=`<div style="display:flex;gap:1px;height:8px;border-radius:2px;overflow:hidden;min-width:80px">`;
+      const tot=s.a25||1;
+      chs.forEach(ch=>{const v=s.ch_a25[ch]||0;const p=v/tot*100;if(p>0.5)bar+=`<div style="width:${p.toFixed(1)}%;background:${CH_COLORS[ch]};opacity:.85" title="${CH_LABEL[currentLang][ch]||ch}: ${fmtK(v)}K"></div>`;});
+      bar+=`</div>`;
+      const nb=s.new25?`<span style="font-size:9px;background:#edf5f2;color:#1d7a5f;padding:1px 5px;border-radius:3px;margin-left:4px">NEW</span>`:s.disc?`<span style="font-size:9px;background:#fdf0ee;color:#b83a2e;padding:1px 5px;border-radius:3px;margin-left:4px">${isJa?'廃番':'停產'}</span>`:'';
+      html+=`<tr><td style="color:var(--text3);font-size:11px">${i+1}</td>
+        <td class="lc" style="font-weight:400">${name}${nb}</td>
+        <td style="color:var(--text2)">${fmtP(s.price)}</td>
+        <td style="font-weight:500">${s.a25>0?fmtK(s.a25):'—'}</td>
+        <td>${s.a25>0?bar:'—'}</td>
+        <td>${s.q25>0?s.q25.toLocaleString():'—'}</td>
+        <td style="font-family:var(--mono)">${s.p25>0?fmtP(s.p25):'—'}</td>
+        <td style="color:var(--text2)">${s.a24>0?fmtK(s.a24):'—'}</td>
+        <td class="${dCls}">${s.a24>0?dStr:(s.a25>0?`<span style="font-size:10px;color:var(--text3)">${isJa?'新規':'新品'}</span>`:'—')}</td>
+      </tr>`;
+    });
+    html+=`</tbody></table>`;
+    let leg=`<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:11px;color:var(--text2)"><span>${isJa?'ルート:':'通路:'}</span>`;
+    chs.forEach(ch=>{const l=CH_LABEL[currentLang][ch]||ch;leg+=`<span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:${CH_COLORS[ch]};display:inline-block"></span>${l}</span>`;});
+    document.getElementById('sku-table-wrap').innerHTML=html+leg+`</div>`;
+  }
+
+    function buildPriceContent(){
+    const isJa=currentLang==='ja';
+    const mp=DATA.monthly_price;
+    const W=540,H=80,pad=8;
+    const maxP=Math.max(...mp.map(d=>d.p24),1);
+    const scaleY=v=>H-pad-(v/maxP*(H-pad*2));
+    const xStep=(W-pad*2)/11;
+    const pts24=mp.map((d,i)=>`${pad+i*xStep},${scaleY(d.p24)}`).join(' ');
+    const pts25=mp.map((d,i)=>`${pad+i*xStep},${scaleY(d.p25)}`).join(' ');
+    let spark=`<div style="margin-bottom:20px">
+      <div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text1)">${isJa?'月次平均単価推移（主力商品合計）':'月次平均單價趨勢（主力商品合計）'}</div>
+      <svg viewBox="0 0 ${W} ${H+14}" style="width:100%;max-width:${W}px;overflow:visible">
+        ${mp.map((d,i)=>`<text x="${pad+i*xStep}" y="${H+12}" font-size="9" text-anchor="middle" fill="var(--text3)">${d.label}</text>`).join('')}
+        <polyline points="${pts24}" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-dasharray="4,2" opacity=".5"/>
+        <polyline points="${pts25}" fill="none" stroke="#1a5496" stroke-width="2"/>
+        ${mp.map((d,i)=>`<circle cx="${pad+i*xStep}" cy="${scaleY(d.p25)}" r="3" fill="#1a5496"/>`).join('')}
+        <text x="4" y="${scaleY(mp[0].p24)-3}" font-size="9" fill="var(--text3)">FY24</text>
+        <text x="4" y="${scaleY(mp[0].p25)+11}" font-size="9" fill="#1a5496">FY25</text>
+      </svg></div>`;
+
+    // 3軸比較テーブル
+    const t=DATA.total;
+    const groupStyle=(bg,clr)=>`style="text-align:center;padding:3px 6px;font-size:10px;letter-spacing:.04em;background:${bg};color:${clr};border-radius:3px 3px 0 0"`;
+    let tbl=`<div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text1)">${isJa?'数量・金額・単価 3軸比較（主力商品合計）':'數量・金額・單價 三軸比較（主力商品合計）'}</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${isJa?'単位：数量＝個、金額＝M NTD、単価＝NTD　　金額ゼロ同梱品除外':'單位：數量＝個、金額＝M NTD、單價＝NTD　　已排除零元贈品'}</div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:680px">
+    <thead>
+      <tr>
+        <th style="width:10%;border-bottom:none"></th>
+        <th colspan="4" ${groupStyle('#EAF3DE','#3B6D11')}>${isJa?'数量（個）':'數量（個）'}</th>
+        <th colspan="4" ${groupStyle('#E6F1FB','#185FA5')}>${isJa?'金額（M NTD）':'金額（M NTD）'}</th>
+        <th colspan="4" ${groupStyle('#FAEEDA','#854F0B')}>${isJa?'単価（NTD）':'單價（NTD）'}</th>
+      </tr>
+      <tr>
+        <th style="text-align:left;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2)">${isJa?'ルート':'通路'}</th>
+        <th style="text-align:right;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2)">FY24</th>
+        <th style="text-align:right;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2)">FY25</th>
+        <th style="text-align:right;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2)">${isJa?'差異':'差異'}</th>
+        <th style="text-align:right;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2)">%</th>
+        <th style="text-align:right;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2);border-left:1px solid var(--border)">FY24</th>
+        <th style="text-align:right;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2)">FY25</th>
+        <th style="text-align:right;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2)">${isJa?'差異':'差異'}</th>
+        <th style="text-align:right;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2)">%</th>
+        <th style="text-align:right;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2);border-left:1px solid var(--border)">FY24</th>
+        <th style="text-align:right;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2)">FY25</th>
+        <th style="text-align:right;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2)">${isJa?'差異':'差異'}</th>
+        <th style="text-align:right;font-size:10.5px;font-weight:500;color:var(--text2);padding:5px 6px;border-bottom:1px solid var(--border2)">%</th>
+      </tr>
+    </thead><tbody>`;
+
+    const tdR=(v,cls='')=>`<td style="padding:5px 6px;text-align:right;border-bottom:.5px solid var(--border);font-family:var(--mono);font-size:11.5px${cls?';'+cls:''}">${v}</td>`;
+    const tdUp=v=>`<td style="padding:5px 6px;text-align:right;border-bottom:.5px solid var(--border);font-family:var(--mono);font-size:11.5px;color:#1d7a5f;font-weight:500">${v}</td>`;
+    const tdDn=v=>`<td style="padding:5px 6px;text-align:right;border-bottom:.5px solid var(--border);font-family:var(--mono);font-size:11.5px;color:#b83a2e;font-weight:500">${v}</td>`;
+    const tdNe=v=>`<td style="padding:5px 6px;text-align:right;border-bottom:.5px solid var(--border);font-family:var(--mono);font-size:11.5px;color:var(--text2)">${v}</td>`;
+    const pct=v=>v===0?tdNe('±0%'):v>0?tdUp('+'+v+'%'):tdDn(v+'%');
+    const fM=v=>(v/1e6).toFixed(1);
+    const fP=v=>v.toLocaleString();
+    const sep='border-left:1px solid var(--border)';
+
+    DATA.ch_summary.forEach(d=>{
+      const dot=`<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${d.color};margin-right:5px;vertical-align:middle"></span>`;
+      tbl+=`<tr>
+        <td style="padding:5px 6px;border-bottom:.5px solid var(--border)">${dot}${d.ch}</td>
+        ${tdR(d.q24.toLocaleString())}${tdR(d.q25.toLocaleString())}
+        ${d.diff_q>=0?tdUp('+'+d.diff_q.toLocaleString()):tdDn(d.diff_q.toLocaleString())}
+        ${pct(d.diff_q_pct)}
+        ${tdR(fM(d.a24),'border-left:1px solid var(--border)')}${tdR(fM(d.a25))}
+        ${d.diff_a>=0?tdUp('+'+fM(d.diff_a)):tdDn(fM(d.diff_a))}
+        ${pct(d.diff_a_pct)}
+        ${tdR(fP(d.p24),'border-left:1px solid var(--border)')}${tdR(fP(d.p25))}
+        ${tdDn((d.diff_p>=0?'+':'')+fP(d.diff_p))}
+        ${tdDn(d.diff_pct+'%')}
+      </tr>`;
+    });
+
+    // 合計行
+    const dq=t.diff_q; const da=t.diff_a; const dp=t.diff_p;
+    const dqp=Math.round(dq/t.q24*100); const dap=Math.round(da/t.a24*100);
+    const dpp=Math.round(dp/t.p24*100);
+    tbl+=`<tr style="background:var(--bg2)">
+      <td style="padding:5px 6px;border-top:1.5px solid var(--border2);border-bottom:.5px solid var(--border);font-weight:500">${isJa?'合計':'合計'}</td>
+      <td style="padding:5px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);font-size:11.5px;font-weight:500">${t.q24.toLocaleString()}</td>
+      <td style="padding:5px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);font-size:11.5px;font-weight:500">${t.q25.toLocaleString()}</td>
+      <td style="padding:5px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);font-size:11.5px;font-weight:500;color:#1d7a5f">+${dq.toLocaleString()}</td>
+      <td style="padding:5px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);font-size:11.5px;font-weight:500;color:#1d7a5f">+${dqp}%</td>
+      <td style="padding:5px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);font-size:11.5px;font-weight:500;border-left:1px solid var(--border)">${fM(t.a24)}</td>
+      <td style="padding:5px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);font-size:11.5px;font-weight:500">${fM(t.a25)}</td>
+      <td style="padding:5px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);font-size:11.5px;font-weight:500;color:#1d7a5f">+${fM(da)}</td>
+      <td style="padding:5px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);font-size:11.5px;font-weight:500;color:#1d7a5f">+${dap}%</td>
+      <td style="padding:5px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);font-size:11.5px;font-weight:500;border-left:1px solid var(--border)">${fP(t.p24)}</td>
+      <td style="padding:5px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);font-size:11.5px;font-weight:500">${fP(t.p25)}</td>
+      <td style="padding:5px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);font-size:11.5px;font-weight:500;color:#b83a2e">${fP(dp)}</td>
+      <td style="padding:5px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);font-size:11.5px;font-weight:500;color:#b83a2e">${dpp}%</td>
+    </tr>`;
+    tbl+=`</tbody></table></div>`;
+
+    // 3軸サマリーカード
+    let cards=`<div style="margin-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+      <div style="background:#EAF3DE;border-radius:8px;padding:10px 14px">
+        <div style="font-size:10.5px;font-weight:500;color:#3B6D11;margin-bottom:3px">${isJa?'数量':'數量'}</div>
+        <div style="font-size:22px;font-weight:500;color:#27500A">+22%</div>
+        <div style="font-size:10.5px;color:#3B6D11;margin-top:2px">15,904 → 19,435個</div>
+        <div style="font-size:10.5px;color:#3B6D11">${isJa?'WEB・ECが大幅増、KOL・TMは減':'WEB・EC大幅增，KOL・TM減少'}</div>
+      </div>
+      <div style="background:#E6F1FB;border-radius:8px;padding:10px 14px">
+        <div style="font-size:10.5px;font-weight:500;color:#185FA5;margin-bottom:3px">${isJa?'金額':'金額'}</div>
+        <div style="font-size:22px;font-weight:500;color:#0C447C">+3%</div>
+        <div style="font-size:10.5px;color:#185FA5;margin-top:2px">56.6M → 58.3M NTD</div>
+        <div style="font-size:10.5px;color:#185FA5">${isJa?'KOL▲21%・TM▲7%が足を引く':'KOL▲21%・TM▲7%拖累整體'}</div>
+      </div>
+      <div style="background:#FAEEDA;border-radius:8px;padding:10px 14px">
+        <div style="font-size:10.5px;font-weight:500;color:#854F0B;margin-bottom:3px">${isJa?'単価':'單價'}</div>
+        <div style="font-size:22px;font-weight:500;color:#633806">▲16%</div>
+        <div style="font-size:10.5px;color:#854F0B;margin-top:2px">3,557 → 2,999 NTD</div>
+        <div style="font-size:10.5px;color:#854F0B">${isJa?'全ルートで下落（SKUミックスシフト）':'全通路下降（商品組合位移）'}</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;font-size:10.5px;color:var(--text3)">${isJa?'※ 単価下落の主因はSKUミックスの価格帯シフト。FY24は英語Plus（定価4,800）中心 → FY25は好情緒EQ（2,199）・雙語圖鑑（2,399）等が主力。数量+22%増が単価▲16%下落を上回り金額+3%で着地。':'※ 單價下降主因為商品組合的價格帶位移。FY24以英語Plus（定價4,800）為主 → FY25以好情緒EQ（2,199）・雙語圖鑑（2,399）等為主力。數量+22%增長超過單價▲16%下降，金額以+3%收尾。'}</div>`;
+
+    // 商品別単価テーブル
+    let skuTbl=`<div style="font-size:12px;font-weight:500;margin-top:20px;margin-bottom:8px;color:var(--text1)">${isJa?'商品別単価':'商品別單價'}</div>
+    <table class="pl"><thead><tr>
+      <th class="lh" style="width:24%">${isJa?'商品名':'商品名稱'}</th>
+      <th>${isJa?'定価':'定價'}</th>
+      <th>${isJa?'FY24単価':'FY24單價'}</th>
+      <th>${isJa?'FY25単価':'FY25單價'}</th>
+      <th>${isJa?'単価差':'單價差'}</th>
+      <th>${isJa?'定価比(FY25)':'定價比(FY25)'}</th>
+    </tr></thead><tbody>`;
+    DATA.sku.forEach(s=>{
+      const name=isJa?s.ja:s.zh;
+      const dp=s.p25-s.p24;
+      const dCls=dp>=0?'val-pos':'val-neg';
+      const ratio=s.p25>0?Math.round(s.p25/s.price*100):0;
+      const nb=s.new25?`<span style="font-size:9px;background:#edf5f2;color:#1d7a5f;padding:1px 4px;border-radius:2px;margin-left:3px">NEW</span>`:'';
+      skuTbl+=`<tr><td class="lc" style="font-weight:400">${name}${nb}</td>
+        <td style="color:var(--text2)">${fP(s.price)}</td>
+        <td style="font-family:var(--mono);color:var(--text2)">${s.p24>0?fP(s.p24):'—'}</td>
+        <td style="font-family:var(--mono);font-weight:500">${s.p25>0?fP(s.p25):'—'}</td>
+        <td class="${dCls}">${s.p24>0&&s.p25>0?(dp>=0?'+':'')+fP(dp):'—'}</td>
+        <td style="font-family:var(--mono)">${ratio>0?ratio+'%':'—'}</td></tr>`;
+    });
+    skuTbl+=`</tbody></table><div style="font-size:10.5px;color:var(--text3);margin-top:6px">${isJa?'※ 単価はすべて金額ゼロの同梱品を除外して計算。':'※ 單價計算已排除零元贈品。'}</div>`;
+
+    document.getElementById('price-content').innerHTML=spark+tbl+cards+skuTbl;
+  }
+
+  function buildChContent(){
+    const isJa=currentLang==='ja';
+    const main4=['WEB','TM','KOL','EC'];
+    const totalA25=DATA.ch_summary.reduce((s,d)=>s+d.a25,0);
+    const maxAmt=Math.max(...DATA.ch_summary.filter(d=>main4.includes(d.ch)).map(d=>d.a25));
+
+    // メインカード生成
+    const makeCard=(d,small=false)=>{
+      const pct=d.a25/totalA25*100;
+      const lbl=CH_LABEL[currentLang][d.ch]||d.ch;
+      const maxM=Math.max(...d.m_a25,1);
+      const barH=small?16:26;
+      let spark=`<div style="display:flex;align-items:flex-end;gap:${small?1:2}px;height:${barH}px;margin-top:${small?4:6}px">`;
+      d.m_a25.forEach((v,i)=>{const h=Math.max(1,Math.round(v/maxM*(barH-2)));spark+=`<div style="flex:1;height:${h}px;background:${d.color};opacity:.7;border-radius:1px 1px 0 0" title="${DATA.months_label[i]}: ${fmtK(v)}K"></div>`;});
+      spark+=`</div><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-top:1px"><span>4月</span><span>3月</span></div>`;
+      const dAmt=d.a25-d.a24; const dAmtClr=dAmt>=0?'#1d7a5f':'#b83a2e';
+      if(small){
+        return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 14px;opacity:.85">
+          <div style="font-size:11.5px;font-weight:500;margin-bottom:3px"><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:${d.color};margin-right:4px;vertical-align:middle"></span>${lbl}<span style="font-size:10px;color:var(--text3);margin-left:6px">${isJa?'参考':'參考'}</span></div>
+          <div style="font-size:16px;font-weight:300;font-family:var(--mono)">${fmtK(d.a25)}<span style="font-size:11px;color:var(--text3);margin-left:2px">K</span></div>
+          <div style="display:flex;gap:10px;margin-top:2px;font-size:10.5px">
+            <span style="color:var(--text3)">FY24: ${fmtK(d.a24)}K</span>
+            <span style="color:${dAmtClr};font-weight:500">${dAmt>=0?'+':''}${fmtK(dAmt)}K</span>
+          </div>
+          ${spark}
+          <div style="font-size:10px;color:${d.diff_p<0?'#b83a2e':'#1d7a5f'};margin-top:3px">${isJa?'単価':'單價'}: ${d.diff_p>=0?'+':''}${fmtP(d.diff_p)} (${d.diff_pct>=0?'+':''}${d.diff_pct}%)</div>
+        </div>`;
+      }
+      return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">
+          <span style="font-size:13px;font-weight:500"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${d.color};margin-right:5px;vertical-align:middle"></span>${lbl}</span>
+          <span style="font-size:10.5px;color:var(--text3)">${pct.toFixed(0)}%</span>
+        </div>
+        <div style="font-size:22px;font-weight:300;font-family:var(--mono)">${fmtK(d.a25)}<span style="font-size:12px;color:var(--text3);margin-left:2px">K</span></div>
+        <div style="display:flex;gap:12px;margin-top:3px;font-size:11px">
+          <span style="color:var(--text3)">FY24: ${fmtK(d.a24)}K</span>
+          <span style="color:${dAmtClr};font-weight:500">${dAmt>=0?'+':''}${fmtK(dAmt)}K</span>
+        </div>
+        <div style="height:4px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:6px"><div style="width:${Math.min(d.a25/maxAmt*100,100).toFixed(1)}%;height:100%;background:${d.color};border-radius:3px"></div></div>
+        ${spark}
+        <div style="font-size:10.5px;color:${d.diff_p<0?'#b83a2e':'#1d7a5f'};margin-top:4px">${isJa?'単価':'單價'}: ${d.diff_p>=0?'+':''}${fmtP(d.diff_p)} (${d.diff_pct>=0?'+':''}${d.diff_pct}%)</div>
+      </div>`;
+    };
+
+    // 1行4枚（メイン）
+    let html=`<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:10px">`;
+    main4.forEach(ch=>{
+      const d=DATA.ch_summary.find(x=>x.ch===ch);
+      if(d) html+=makeCard(d,false);
+    });
+    html+=`</div>`;
+
+    // 其他：小さく1枚（参考）
+    const other=DATA.ch_summary.find(x=>x.ch==='其他');
+    if(other){
+      html+=`<div style="display:grid;grid-template-columns:minmax(0,1fr) 3fr;gap:12px">`;
+      html+=makeCard(other,true);
+      html+=`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;display:flex;align-items:center">
+        <div style="font-size:11px;color:var(--text3);line-height:1.7">${isJa?'其他：経代銷（店舗）・授権販売・その他ルートの合算。FY25は注音套組2.0の店舗経由販売（1.3M）が主因で増加。単独ルートとしての戦略的優先度は低い。':'其他：代理銷售、授權販售及其他通路合計。FY25因注音套組2.0實體通路銷售（1.3M）增加。作為獨立通路的策略優先度較低。'}</div>
+      </div>`;
+      html+=`</div>`;
+    }
+
+    document.getElementById('ch-content').innerHTML=html;
+  }
+
+  function buildRankingTable(){
+    const isJa=currentLang==='ja';
+    const main4=['WEB','TM','KOL','EC'];
+    const TOP_N=10;
+
+    // ルート別に上位N商品をソート
+    const getRanking=(ch)=>{
+      return DATA.sku
+        .filter(s=>!s.disc)
+        .map(s=>({...s,val:s.ch_a25[ch]||0}))
+        .filter(s=>s.val>0)
+        .sort((a,b)=>b.val-a.val)
+        .slice(0,TOP_N);
+    };
+
+    // 各ルートの最大値（バー基準）
+    const maxByRoute={};
+    main4.forEach(ch=>{
+      const r=getRanking(ch);
+      maxByRoute[ch]=r.length>0?r[0].val:1;
+    });
+
+    let html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">`;
+
+    main4.forEach(ch=>{
+      const color=CH_COLORS[ch];
+      const ranking=getRanking(ch);
+      const total=ranking.reduce((s,x)=>s+x.val,0);
+
+      html+=`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px">
+          <span style="font-size:13px;font-weight:500"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${color};margin-right:6px;vertical-align:middle"></span>${ch}</span>
+          <span style="font-size:11px;color:var(--text3)">${isJa?'上位':'前'}${TOP_N} / ${isJa?`計 ${fmtK(total)}K`:`合計 ${fmtK(total)}K`}</span>
+        </div>`;
+
+      ranking.forEach((s,i)=>{
+        const name=isJa?s.ja:s.zh;
+        const barW=Math.round(s.val/maxByRoute[ch]*100);
+        const nb=s.new25?`<span style="font-size:8px;background:#edf5f2;color:#1d7a5f;padding:1px 4px;border-radius:2px;margin-left:3px;vertical-align:middle">NEW</span>`:'';
+        const share=Math.round(s.val/total*100);
+        html+=`<div style="margin-bottom:7px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+            <span style="font-size:11.5px;color:var(--text1)"><span style="font-size:10px;color:var(--text3);margin-right:4px;font-family:var(--mono);min-width:14px;display:inline-block">${i+1}</span>${name}${nb}</span>
+            <span style="font-size:11.5px;font-family:var(--mono);font-weight:500;color:var(--text1)">${fmtK(s.val)}K</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px">
+            <div style="flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+              <div style="width:${barW}%;height:100%;background:${color};opacity:.8;border-radius:2px"></div>
+            </div>
+            <span style="font-size:9px;color:var(--text3);min-width:24px;text-align:right">${share}%</span>
+          </div>
+        </div>`;
+      });
+
+      html+=`</div>`;
+    });
+
+    html+=`</div>
+    <div style="margin-top:10px;font-size:10.5px;color:var(--text3)">${isJa?'※ 廃番商品は除く。シェア%は各ルート内の上位10商品合計に対する割合。':'※ 已排除停產商品。佔比為各通路前10商品合計之百分比。'}</div>`;
+
+    document.getElementById('cross-table-wrap').innerHTML=html;
+  }
+
+  function buildTrendContent(){
+    const isJa=currentLang==='ja';
+    const T=TREND_DATA;
+    const labels=T.months_label;
+    const splitIdx=12; // FY24/FY25の境界
+
+    // FY25現役12商品（disc=falseのもの）を FY25売上降順
+    const skus=[...T.trend].sort((a,b)=>b.total_fy25-a.total_fy25);
+
+    let html='';
+    // 2列グリッドで各商品のスパークチャート
+    html+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">`;
+
+    skus.forEach(s=>{
+      if(s.total_fy24===0 && s.total_fy25===0) return;
+      const name=isJa?s.ja:s.zh;
+      const maxV=Math.max(...s.monthly,1);
+      const nb=s.new25?`<span style="font-size:9px;background:#edf5f2;color:#1d7a5f;padding:1px 4px;border-radius:2px;margin-left:3px">NEW</span>`:'';
+      const W=480; const H=48; const pad=4;
+      const xStep=(W-pad*2)/23;
+      // ポリライン生成（ゼロ点はグラフに含めるが線は引かない）
+      let pts24=''; let pts25='';
+      let has24=false; let has25=false;
+      s.monthly.forEach((v,i)=>{
+        const x=pad+i*xStep;
+        const y=H-pad-(v/maxV*(H-pad*2));
+        if(i<splitIdx && v>0){ pts24+=`${x},${y} `; has24=true; }
+        if(i>=splitIdx && v>0){ pts25+=`${x},${y} `; has25=true; }
+      });
+      // ゼロライン
+      const yZero=H-pad;
+      // 発売月マーカー
+      const launchMarker = s.launch_idx!==null ?
+        `<circle cx="${pad+s.launch_idx*xStep}" cy="${H-pad-(s.monthly[s.launch_idx]/maxV*(H-pad*2))}" r="3" fill="#1d7a5f" opacity=".8"/>` : '';
+
+      const dA=s.total_fy25-s.total_fy24;
+      const dAClr=dA>=0?'#1d7a5f':'#b83a2e';
+
+      html+=`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <span style="font-size:12px;font-weight:500">${name}${nb}</span>
+          <span style="font-size:10.5px;color:${dAClr};font-weight:500">${dA>=0?'+':''}${Math.round(dA/1000).toLocaleString()}K</span>
+        </div>
+        <svg viewBox="0 0 ${W} ${H+12}" style="width:100%;overflow:visible">
+          <line x1="${pad+splitIdx*xStep}" y1="${pad}" x2="${pad+splitIdx*xStep}" y2="${H}" stroke="var(--border2)" stroke-width="1" stroke-dasharray="3,2"/>
+          ${has24?`<polyline points="${pts24.trim()}" fill="none" stroke="var(--text3)" stroke-width="1.5" opacity=".5" stroke-dasharray="3,2"/>`:''}
+          ${has25?`<polyline points="${pts25.trim()}" fill="none" stroke="#1a5496" stroke-width="2"/>`:''}
+          ${has25?s.monthly.slice(splitIdx).map((v,i)=>v>0?`<circle cx="${pad+(splitIdx+i)*xStep}" cy="${H-pad-(v/maxV*(H-pad*2))}" r="2" fill="#1a5496"/>`:'').join(''):''}
+          <text x="${pad+splitIdx*xStep/2}" y="${H+10}" font-size="8" text-anchor="middle" fill="var(--text3)">FY24</text>
+          <text x="${pad+(splitIdx+6)*xStep}" y="${H+10}" font-size="8" text-anchor="middle" fill="#1a5496">FY25</text>
+          <text x="${W-pad}" y="${pad+6}" font-size="8" text-anchor="end" fill="var(--text3)">${Math.round(maxV/1000)}K</text>
+        </svg>
+        <div style="display:flex;gap:12px;font-size:10.5px;margin-top:2px">
+          <span style="color:var(--text3)">FY24: ${Math.round(s.total_fy24/1000).toLocaleString()}K</span>
+          <span style="color:#1a5496;font-weight:500">FY25: ${Math.round(s.total_fy25/1000).toLocaleString()}K</span>
+        </div>
+      </div>`;
+    });
+    html+=`</div>
+    <div style="margin-top:10px;font-size:10.5px;color:var(--text3)">${isJa?'灰色点線=FY24・青実線=FY25。縦軸は商品ごとに独立スケール。':'灰色虛線=FY24・藍色實線=FY25。縱軸各商品獨立刻度。'}</div>`;
+    document.getElementById('trend-content').innerHTML=html;
+  }
+
+  function buildBclContent(){
+    const isJa=currentLang==='ja';
+    const T=TREND_DATA;
+    const bands=['0-12M','13-24M','25-36M','37-48M','49M+'];
+    const bandLabel={'0-12M':isJa?'0〜12M（乳児）':'0〜12M（嬰兒期）',
+                     '13-24M':isJa?'13〜24M（1歳台）':'13〜24M（1歲）',
+                     '25-36M':isJa?'25〜36M（2歳台）':'25〜36M（2歲）',
+                     '37-48M':isJa?'37〜48M（3歳台）':'37〜48M（3歲）',
+                     '49M+':isJa?'49M以上（4歳〜）':'49M以上（4歲〜）'};
+    const colors={'0-12M':'#185FA5','13-24M':'#1d7a5f','25-36M':'#96600a','37-48M':'#7a3d96','49M+':'#b83a2e'};
+    const b24=T.bcl_bands_fy24; const b25=T.bcl_bands_fy25;
+
+    const tot24=bands.reduce((s,k)=>s+(b24[k]||0),0);
+    const tot25=bands.reduce((s,k)=>s+(b25[k]||0),0);
+
+    // ① 積み上げ横棒（FY24/FY25）
+    const makeBar=(data,total)=>{
+      let bar=`<div style="display:flex;height:32px;border-radius:4px;overflow:hidden;margin:4px 0">`;
+      bands.forEach(k=>{
+        const v=data[k]||0; const pct=total>0?v/total*100:0;
+        if(pct<0.5) return;
+        bar+=`<div style="width:${pct.toFixed(1)}%;background:${colors[k]};display:flex;align-items:center;justify-content:center;overflow:hidden" title="${bandLabel[k]}: ${Math.round(v/1000)}K (${pct.toFixed(1)}%)">
+          ${pct>7?`<span style="font-size:10px;color:#fff;font-weight:500">${Math.round(pct)}%</span>`:''}
+        </div>`;
+      });
+      bar+=`</div>`;
+      return bar;
+    };
+
+    let html=`
+    <div style="margin-bottom:24px">
+      <div style="font-size:12px;font-weight:500;margin-bottom:10px;color:var(--text1)">${isJa?'月齢帯別 売上構成（BCLあり9商品）':'月齡帶別銷售構成（有BCL資料9商品）'}</div>
+      <div style="margin-bottom:6px">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:3px">FY24　<span style="font-family:var(--mono);font-size:11px">${Math.round(tot24/1000).toLocaleString()}K</span>　<span style="font-size:10.5px;color:var(--text3)">${isJa?`加重平均 ${T.avg_bcl_fy24}M`:`加權平均 ${T.avg_bcl_fy24}M`}</span></div>
+        ${makeBar(b24,tot24)}
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:3px">FY25　<span style="font-family:var(--mono);font-size:11px">${Math.round(tot25/1000).toLocaleString()}K</span>　<span style="font-size:10.5px;color:#1a5496;font-weight:500">${isJa?`加重平均 ${T.avg_bcl_fy25}M ▼${Math.round((T.avg_bcl_fy24-T.avg_bcl_fy25)*10)/10}M`:`加權平均 ${T.avg_bcl_fy25}M ▼${Math.round((T.avg_bcl_fy24-T.avg_bcl_fy25)*10)/10}M`}</span></div>
+        ${makeBar(b25,tot25)}
+      </div>
+    </div>`;
+
+    // ② 凡例
+    html+=`<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">`;
+    bands.forEach(k=>{html+=`<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)"><span style="width:10px;height:10px;border-radius:2px;background:${colors[k]};display:inline-block"></span>${bandLabel[k]}</span>`;});
+    html+=`</div>`;
+
+    // ③ 月齢帯別 FY24→FY25 変化カード
+    html+=`<div style="font-size:12px;font-weight:500;margin-bottom:10px;color:var(--text1)">${isJa?'月齢帯別 売上変化':'月齡帶別 銷售變化'}</div>
+    <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:20px">`;
+    bands.forEach(k=>{
+      const v24=b24[k]||0; const v25=b25[k]||0;
+      const diff=v25-v24;
+      const s24=tot24>0?Math.round(v24/tot24*100):0;
+      const s25=tot25>0?Math.round(v25/tot25*100):0;
+      const dClr=diff>=0?'#1d7a5f':'#b83a2e';
+      html+=`<div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid ${colors[k]};border-radius:0 6px 6px 0;padding:8px 10px">
+        <div style="font-size:10px;color:var(--text2);margin-bottom:4px">${bandLabel[k]}</div>
+        <div style="font-size:14px;font-weight:500;color:${dClr}">${diff>=0?'+':''}${Math.round(diff/1000)}K</div>
+        <div style="font-size:9.5px;color:var(--text3);margin-top:2px">${s24}% → ${s25}%</div>
+      </div>`;
+    });
+    html+=`</div>`;
+
+    // ④ 商品別月齢リスト
+    html+=`<div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text1)">${isJa?'商品別 BCL月齢・FY25売上':'商品別 BCL月齡・FY25銷售'}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">`;
+    const bclSkus=[...T.trend].filter(s=>s.bcl!==null).sort((a,b)=>a.bcl-b.bcl);
+    bclSkus.forEach(s=>{
+      const name=isJa?s.ja:s.zh;
+      const band = s.bcl<=12?'0-12M':s.bcl<=24?'13-24M':s.bcl<=36?'25-36M':s.bcl<=48?'37-48M':'49M+';
+      const clr=colors[band];
+      const nb=s.new25?`<span style="font-size:8px;background:#edf5f2;color:#1d7a5f;padding:1px 3px;border-radius:2px;margin-left:3px">NEW</span>`:'';
+      html+=`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:6px">
+        <span style="font-size:11px;font-weight:500;color:#fff;background:${clr};padding:2px 6px;border-radius:3px;min-width:32px;text-align:center">${s.bcl}M</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}${nb}</div>
+          <div style="font-size:10px;color:var(--text3)">FY25: ${Math.round(s.total_fy25/1000).toLocaleString()}K</div>
+        </div>
+      </div>`;
+    });
+    html+=`</div>
+    <div style="margin-top:12px;font-size:10.5px;color:var(--text3)">${isJa?'※ 點讀巧比思考力遊戲組・巧連智閱讀橋樑書1-3・巧連智精選世界名著1-3はBCL月齢データなし（月齢集計から除外）。加重平均は売上金額ウェイト。':'※ 點讀巧比思考力遊戲組・巧連智閱讀橋樑書1-3・巧連智精選世界名著1-3無BCL月齡資料（已從月齡統計排除）。加權平均以銷售金額為權重。'}</div>`;
+
+    document.getElementById('bcl-content').innerHTML=html;
+  }
+
+  function buildYnContent(){
+    const isJa=currentLang==='ja';
+    const D=YN_DATA;
+    const splitIdx=D.split_idx;
+    const yClr='#96600a'; const nClr='#1a5496';
+
+    // ── KPIカード ──
+    const f24=D.fy24; const f25=D.fy25;
+    let html=`<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:20px">
+      <div class="kpi-card">
+        <div class="kpi-label">${isJa?'FY24 新顧客比率':'FY24 新顧客比率'}</div>
+        <div class="kpi-value" style="color:#1a5496">${f24.n_pct}%</div>
+        <div class="kpi-sub">${f24.n.toLocaleString()} / ${f24.total.toLocaleString()}件</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">${isJa?'FY25 新顧客比率':'FY25 新顧客比率'}</div>
+        <div class="kpi-value pos">${f25.n_pct}%</div>
+        <div class="kpi-sub">${f25.n.toLocaleString()} / ${f25.total.toLocaleString()}件</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">${isJa?'新顧客比率 変化':'新顧客比率 變化'}</div>
+        <div class="kpi-value pos">+${Math.round(f25.n_pct-f24.n_pct)}pt</div>
+        <div class="kpi-sub">${isJa?'既存依存から脱却':'擺脫舊客依賴'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">${isJa?'FY25後半 新顧客比率':'FY25後半 新顧客比率'}</div>
+        <div class="kpi-value pos">${Math.round(D.n.slice(splitIdx+6).reduce((a,b)=>a+b,0)/D.total.slice(splitIdx+6).reduce((a,b)=>a+b,0)*100)}%</div>
+        <div class="kpi-sub">${isJa?'10月〜3月平均':'10月〜3月平均'}</div>
+      </div>
+    </div>`;
+
+    // ── 積み上げ棒グラフ（SVG） ──
+    const W=700; const H=180; const padL=32; const padR=8; const padT=16; const padB=24;
+    const n=D.total.length;
+    const maxV=Math.max(...D.total);
+    const barW=Math.floor((W-padL-padR)/n)-2;
+    const scaleY=v=>(H-padT-padB)*(1-v/maxV);
+
+    let bars=''; let xlabels=''; let nline='';
+    const linePoints=[];
+
+    D.total.forEach((tot,i)=>{
+      const x=padL+(i*(W-padL-padR)/n);
+      const yVal=D.y[i]; const nVal=D.n[i];
+      const hY=Math.round((H-padT-padB)*yVal/maxV);
+      const hN=Math.round((H-padT-padB)*nVal/maxV);
+      const yTop=padT+(H-padT-padB)-hY-hN;
+      const nTop=padT+(H-padT-padB)-hN;
+      // FY境界線
+      const isFy25=i>=splitIdx;
+      bars+=`<rect x="${x+1}" y="${yTop}" width="${barW}" height="${hY}" fill="${yClr}" opacity="${isFy25?.7:.85}"/>`;
+      bars+=`<rect x="${x+1}" y="${nTop}" width="${barW}" height="${hN}" fill="${nClr}" opacity="${isFy25?.85:.6}"/>`;
+      // N比率ライン用座標
+      const nPct=tot>0?D.n[i]/tot:0;
+      linePoints.push(`${x+barW/2+1},${padT+(H-padT-padB)*(1-nPct)}`);
+      // Xラベル（3ヶ月おき）
+      if(i%3===0){
+        const lbl=D.months_label[i].replace('FY24/','').replace('FY25/','');
+        xlabels+=`<text x="${x+barW/2+1}" y="${H-padB+14}" font-size="8" text-anchor="middle" fill="var(--text3)">${D.months_label[i].startsWith('FY25')?lbl:'FY24/'+lbl.replace('月','月')}</text>`;
+      }
+      // 最大月にラベル
+      if(tot===maxV || i===splitIdx-1 || i===n-1){
+        xlabels+=`<text x="${x+barW/2+1}" y="${padT+(H-padT-padB)-hY-hN-3}" font-size="8" text-anchor="middle" fill="var(--text2)">${tot}</text>`;
+      }
+    });
+
+    // N比率ライン
+    nline=`<polyline points="${linePoints.join(' ')}" fill="none" stroke="${nClr}" stroke-width="1.5" opacity=".9" stroke-dasharray="none"/>`;
+    // FY境界
+    const xSplit=padL+(splitIdx*(W-padL-padR)/n);
+    const boundary=`<line x1="${xSplit}" y1="${padT}" x2="${xSplit}" y2="${H-padB}" stroke="var(--border2)" stroke-width="1" stroke-dasharray="4,2"/>
+      <text x="${xSplit+3}" y="${padT+8}" font-size="8" fill="var(--text3)">FY25→</text>`;
+
+    html+=`<div style="margin-bottom:6px;display:flex;gap:16px;font-size:11px">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:${yClr};display:inline-block;border-radius:2px"></span>${isJa?'Y（既存購読者）':'Y（舊訂閱者）'}</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:${nClr};display:inline-block;border-radius:2px"></span>${isJa?'N（新顧客）':'N（新顧客）'}</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:24px;height:2px;background:${nClr};display:inline-block"></span>${isJa?'N比率ライン':'N比率線'}</span>
+    </div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;overflow:visible">
+      ${bars}${boundary}${nline}${xlabels}
+      <text x="${padL-2}" y="${padT}" font-size="8" text-anchor="end" fill="var(--text3)">${maxV}</text>
+      <text x="${padL-2}" y="${H-padB}" font-size="8" text-anchor="end" fill="var(--text3)">0</text>
+    </svg>`;
+
+    // ── 月別N比率テーブル（FY24/FY25対比） ──
+    html+=`<div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px">`;
+
+    // FY24テーブル
+    html+=`<div><div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text1)">FY24</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+    <thead><tr>
+      <th style="text-align:left;font-size:10.5px;color:var(--text3);padding:4px 6px;border-bottom:1px solid var(--border2)">${isJa?'月':'月'}</th>
+      <th style="text-align:right;font-size:10.5px;color:var(--text3);padding:4px 6px;border-bottom:1px solid var(--border2)">Y</th>
+      <th style="text-align:right;font-size:10.5px;color:var(--text3);padding:4px 6px;border-bottom:1px solid var(--border2)">N</th>
+      <th style="text-align:right;font-size:10.5px;color:var(--text3);padding:4px 6px;border-bottom:1px solid var(--border2)">${isJa?'合計':'合計'}</th>
+      <th style="text-align:right;font-size:10.5px;color:${nClr};padding:4px 6px;border-bottom:1px solid var(--border2)">N%</th>
+    </tr></thead><tbody>`;
+    D.months.slice(0,splitIdx).forEach((ym,i)=>{
+      const lbl=D.months_label[i];
+      html+=`<tr style="border-bottom:.5px solid var(--border)">
+        <td style="padding:4px 6px;color:var(--text2)">${lbl}</td>
+        <td style="padding:4px 6px;text-align:right;font-family:var(--mono)">${D.y[i].toLocaleString()}</td>
+        <td style="padding:4px 6px;text-align:right;font-family:var(--mono);color:${nClr}">${D.n[i].toLocaleString()}</td>
+        <td style="padding:4px 6px;text-align:right;font-family:var(--mono)">${D.total[i].toLocaleString()}</td>
+        <td style="padding:4px 6px;text-align:right;font-family:var(--mono);font-weight:500;color:${nClr}">${D.n_pct[i]}%</td>
+      </tr>`;
+    });
+    html+=`<tr style="background:var(--bg2);font-weight:500">
+      <td style="padding:4px 6px;border-top:1.5px solid var(--border2)">${isJa?'FY24計':'FY24計'}</td>
+      <td style="padding:4px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono)">${f24.y.toLocaleString()}</td>
+      <td style="padding:4px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);color:${nClr}">${f24.n.toLocaleString()}</td>
+      <td style="padding:4px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono)">${f24.total.toLocaleString()}</td>
+      <td style="padding:4px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);color:${nClr}">${f24.n_pct}%</td>
+    </tr></tbody></table></div>`;
+
+    // FY25テーブル
+    html+=`<div><div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text1)">FY25</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+    <thead><tr>
+      <th style="text-align:left;font-size:10.5px;color:var(--text3);padding:4px 6px;border-bottom:1px solid var(--border2)">${isJa?'月':'月'}</th>
+      <th style="text-align:right;font-size:10.5px;color:var(--text3);padding:4px 6px;border-bottom:1px solid var(--border2)">Y</th>
+      <th style="text-align:right;font-size:10.5px;color:var(--text3);padding:4px 6px;border-bottom:1px solid var(--border2)">N</th>
+      <th style="text-align:right;font-size:10.5px;color:var(--text3);padding:4px 6px;border-bottom:1px solid var(--border2)">${isJa?'合計':'合計'}</th>
+      <th style="text-align:right;font-size:10.5px;color:${nClr};padding:4px 6px;border-bottom:1px solid var(--border2)">N%</th>
+    </tr></thead><tbody>`;
+    D.months.slice(splitIdx).forEach((ym,i)=>{
+      const idx=splitIdx+i;
+      const lbl=D.months_label[idx];
+      const nPct=D.n_pct[idx];
+      const nClrRow=nPct>=60?'#1d7a5f':nPct>=50?nClr:'var(--text1)';
+      html+=`<tr style="border-bottom:.5px solid var(--border)">
+        <td style="padding:4px 6px;color:var(--text2)">${lbl}</td>
+        <td style="padding:4px 6px;text-align:right;font-family:var(--mono)">${D.y[idx].toLocaleString()}</td>
+        <td style="padding:4px 6px;text-align:right;font-family:var(--mono);color:${nClr}">${D.n[idx].toLocaleString()}</td>
+        <td style="padding:4px 6px;text-align:right;font-family:var(--mono)">${D.total[idx].toLocaleString()}</td>
+        <td style="padding:4px 6px;text-align:right;font-family:var(--mono);font-weight:500;color:${nClrRow}">${nPct}%</td>
+      </tr>`;
+    });
+    html+=`<tr style="background:var(--bg2);font-weight:500">
+      <td style="padding:4px 6px;border-top:1.5px solid var(--border2)">${isJa?'FY25計':'FY25計'}</td>
+      <td style="padding:4px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono)">${f25.y.toLocaleString()}</td>
+      <td style="padding:4px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);color:${nClr}">${f25.n.toLocaleString()}</td>
+      <td style="padding:4px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono)">${f25.total.toLocaleString()}</td>
+      <td style="padding:4px 6px;text-align:right;border-top:1.5px solid var(--border2);font-family:var(--mono);color:#1d7a5f">${f25.n_pct}%</td>
+    </tr></tbody></table></div>`;
+
+    html+=`</div>
+    <div style="margin-top:10px;font-size:10.5px;color:var(--text3)">${isJa?'※ N比率ラインは積み上げ棒グラフ上に重ねて表示。FY25後半（10月以降）はN比率が60〜80%台に到達し、既存購読者依存からの構造的脱却が確認できる。':'※ N比率線疊加於積累柱狀圖。FY25後半（10月以降）N比率達60〜80%，可確認已結構性擺脫舊訂閱者依賴。'}</div>`;
+
+    document.getElementById('yn-content').innerHTML=html;
+  }
+
+  // ── メインページ グラフ描画 ──
+  const CHART_INSTANCES = {};
+  function destroyChart(id){ if(CHART_INSTANCES[id]){ CHART_INSTANCES[id].destroy(); delete CHART_INSTANCES[id]; } }
+
+  const MC = {
+    stage: '#E8A598', learn: '#A8C5DA', ip: '#C5B4E3',
+    peri:  '#A8D5B5', mira:  '#F5D4A0', cqd: '#C8C8C8', other: '#D4C5B0',
+    kyotu: '#F5A8A0',
+    stageD:'#B05040', learnD:'#4A7A9B', ipD:  '#7A5AAB',
+    periD: '#3A8A55', miraD: '#C07820', cqdD: '#787878', otherD:'#8A7A60',
+    kyotuD:'#B83A2E',
+  };
+
+  function buildOverviewCharts(){
+    const isJa = currentLang === 'ja';
+    buildRevenueChart(isJa);
+    buildBizStructChart(isJa);
+    buildKyotuChart(isJa);
+    buildWaterfallChart(isJa);
+  }
+
+  // ① 売上構成 — 縦棒グラフ(事業名X軸・ラベル中央) + ドーナツ(ラベル付き)
+  function buildRevenueChart(isJa){
+    destroyChart('cvs-rev-bar'); destroyChart('cvs-rev-pie');
+    const bizLabels = isJa
+      ? ['舞台劇','学習商品','IPライセンス','周辺商品','巧連智數位','その他','Mirafeel']
+      : ['舞台劇','學習商品','授權金','周邊商品','巧連智數位','其他','Mirafeel'];
+    const bizVals   = [62.6, 57.5, 26.2, 20.9, 7.3, 4.6, 2.0];
+    const bizColors = [MC.stage, MC.learn, MC.ip, MC.peri, MC.cqd, MC.other, MC.mira];
+    const bizDark   = [MC.stageD, MC.learnD, MC.ipD, MC.periD, MC.cqdD, MC.otherD, MC.miraD];
+    const total = 181.1;
+
+    // 縦棒グラフ（X軸=事業名、ラベルをバー中央に）
+    const ctxBar = document.getElementById('cvs-rev-bar');
+    if(ctxBar){
+      CHART_INSTANCES['cvs-rev-bar'] = new Chart(ctxBar, {
+        type: 'bar',
+        data: { labels: bizLabels, datasets: [{
+          data: bizVals, backgroundColor: bizColors,
+          borderWidth: 0, borderRadius: 4,
+        }]},
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(1)}M (${(ctx.parsed.y/total*100).toFixed(1)}%)` }},
+          },
+          scales: {
+            y: { grid:{ color:'rgba(128,128,128,.08)' },
+                 ticks:{ callback: v=>v+'M', color:'#888', font:{size:11} }, max:72, display:true },
+            x: { ticks:{ color:'#444', font:{size:11} }, grid:{ display:false } }
+          }
+        },
+        plugins: [{
+          id: 'barCenterLabels',
+          afterDatasetDraw(chart){
+            const {ctx:c} = chart;
+            chart.getDatasetMeta(0).data.forEach((bar, i) => {
+              const v = bizVals[i];
+              const pct = (v/total*100).toFixed(0);
+              const barH = Math.abs(bar.base - bar.y);
+              c.save();
+              // 上部ラベル（バー上）
+              c.font = '500 11px sans-serif';
+              c.fillStyle = bizDark[i];
+              c.textAlign = 'center'; c.textBaseline = 'bottom';
+              c.fillText(`${v.toFixed(1)}M`, bar.x, bar.y - 2);
+              // 中央ラベル（バー内 %）
+              if(barH > 22){
+                c.font = '400 10px sans-serif';
+                c.fillStyle = '#fff';
+                c.textBaseline = 'middle';
+                c.fillText(`${pct}%`, bar.x, bar.y + barH/2);
+              }
+              c.restore();
+            });
+          }
+        }]
+      });
+    }
+
+    // ドーナツ（各セグメントにラベル＋%）
+    const ctxPie = document.getElementById('cvs-rev-pie');
+    if(ctxPie){
+      CHART_INSTANCES['cvs-rev-pie'] = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: { labels: bizLabels, datasets: [{
+          data: bizVals, backgroundColor: bizColors,
+          borderWidth: 2, borderColor: '#fff',
+        }]},
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          cutout: '45%',
+          layout: { padding: 50 },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed.toFixed(1)}M (${(ctx.parsed/total*100).toFixed(1)}%)` }},
+          }
+        },
+        plugins: [{
+          id: 'pieLabels',
+          afterDraw(chart){
+            const {ctx:c, chartArea:{top,bottom,left,right}} = chart;
+            const cx=(left+right)/2, cy=(top+bottom)/2;
+            // 中央テキスト
+            c.save();
+            c.font='500 14px sans-serif'; c.fillStyle='#333';
+            c.textAlign='center'; c.textBaseline='middle';
+            c.fillText('181.1M', cx, cy-7);
+            c.font='10px sans-serif'; c.fillStyle='#888';
+            c.fillText(isJa?'売上合計':'營收合計', cx, cy+9);
+            c.restore();
+            // セグメントラベル（大きいセグメントのみ）
+            const meta = chart.getDatasetMeta(0);
+            meta.data.forEach((arc, i) => {
+              const pct = bizVals[i]/total*100;
+              if(pct < 5) return;
+              const angle = (arc.startAngle + arc.endAngle) / 2;
+              const r = (arc.outerRadius + arc.innerRadius) / 2;
+              const x = cx + Math.cos(angle) * r;
+              const y = cy + Math.sin(angle) * r;
+              c.save();
+              c.font = '500 10px sans-serif';
+              c.fillStyle = '#fff';
+              c.textAlign = 'center'; c.textBaseline = 'middle';
+              c.fillText(`${pct.toFixed(0)}%`, x, y);
+              c.restore();
+            });
+            // 外側ラベル（大きい3事業）
+            meta.data.forEach((arc, i) => {
+              const pct = bizVals[i]/total*100;
+              if(pct < 10) return;
+              const angle = (arc.startAngle + arc.endAngle) / 2;
+              const r = arc.outerRadius + 14;
+              const x = cx + Math.cos(angle) * r;
+              const y = cy + Math.sin(angle) * r;
+              c.save();
+              c.font = '500 10px sans-serif';
+              c.fillStyle = bizDark[i];
+              c.textAlign = x > cx ? 'left' : 'right';
+              c.textBaseline = 'middle';
+              c.fillText(bizLabels[i], x, y);
+              c.restore();
+            });
+          }
+        }]
+      });
+    }
+  }
+
+  // ② 粗利率 — 棒グラフ＋折れ線（zOrderで前面に）
+  function buildGPChart(isJa){
+    destroyChart('cvs-gp');
+    const labels = isJa
+      ? ['IPライセンス','巧連智數位','学習商品','舞台劇','周辺商品','Mirafeel']
+      : ['授權金','巧連智數位','學習商品','舞台劇','周邊商品','Mirafeel'];
+    const gpAmt  = [24.3, 6.8, 36.4, 34.4, 10.5, 0.9];
+    const gpRate = [92.6, 93.6, 63.4, 54.9, 50.3, 45.3];
+    const colors = [MC.ip, MC.cqd, MC.learn, MC.stage, MC.peri, MC.mira];
+    const darks  = [MC.ipD, MC.cqdD, MC.learnD, MC.stageD, MC.periD, MC.miraD];
+    const ctx = document.getElementById('cvs-gp');
+    if(!ctx) return;
+    CHART_INSTANCES['cvs-gp'] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { type:'bar', label: isJa?'粗利額':'毛利額', data: gpAmt,
+            backgroundColor: colors, borderWidth:0, borderRadius:4, order:2, yAxisID:'y' },
+          { type:'line', label: isJa?'粗利率':'毛利率', data: gpRate,
+            borderColor: '#2c2c2a', backgroundColor: darks,
+            pointRadius: 7, pointBackgroundColor: darks,
+            pointBorderColor: '#fff', pointBorderWidth: 2,
+            borderWidth:2, tension:0, order:1, yAxisID:'y2' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            label: ctx => ctx.datasetIndex===0
+              ? ` 粗利: ${ctx.parsed.y.toFixed(1)}M`
+              : ` 粗利率: ${ctx.parsed.y.toFixed(1)}%`
+          }}
+        },
+        scales: {
+          y:  { position:'left',  grid:{ color:'rgba(128,128,128,.08)' },
+                ticks:{ callback: v=>v+'M', color:'#888', font:{size:11} }, max:45, min:0 },
+          y2: { position:'right', grid:{ drawOnChartArea:false },
+                ticks:{ callback: v=>v+'%', color:'#888', font:{size:11} }, min:0, max:110 },
+          x:  { ticks:{ color:'#444', font:{size:11} }, grid:{ display:false } }
+        }
+      },
+      plugins: [{
+        id: 'gpLabels',
+        afterDatasetDraw(chart, args){
+          if(args.index !== 0) return;
+          const {ctx:c} = chart;
+          chart.getDatasetMeta(0).data.forEach((bar, i) => {
+            c.save();
+            c.font = '500 10px sans-serif';
+            c.fillStyle = darks[i];
+            c.textAlign = 'center'; c.textBaseline = 'bottom';
+            c.fillText(gpAmt[i].toFixed(1)+'M', bar.x, bar.y - 2);
+            c.restore();
+          });
+        }
+      }, {
+        id: 'gpRateLabels',
+        afterDatasetDraw(chart, args){
+          if(args.index !== 1) return;
+          const {ctx:c} = chart;
+          chart.getDatasetMeta(1).data.forEach((pt, i) => {
+            c.save();
+            c.font = '500 10px sans-serif';
+            c.fillStyle = darks[i];
+            c.textAlign = 'center'; c.textBaseline = 'bottom';
+            c.fillText(gpRate[i]+'%', pt.x, pt.y - 10);
+            c.restore();
+          });
+        }
+      }]
+    });
+  }
+
+  // ③ 事業構造 — 積み上げ横棒（売上＝原価＋販売費＋管理費＋事業利益）
+  function buildBizStructChart(isJa){
+    destroyChart('cvs-biz');
+    const labels = isJa
+      ? ['舞台劇','学習商品','IPライセンス','周辺商品','Mirafeel','巧連智數位','その他']
+      : ['舞台劇','學習商品','授權金','周邊商品','Mirafeel','巧連智數位','其他'];
+    // [売上原価, 販売費, 管理費, 事業利益]
+    const data = {
+      cogs:   [28.2, 21.1, 1.9, 10.4, 1.1,  0.5,  2.5],
+      sga:    [3.4,  9.2,  3.9,  3.8,  0.6,  7.4,  2.1],
+      ga:     [3.0,  0.0,  0.1,  0.0,  0.0,  0.3,  0.0],
+      profit: [27.7, 27.3, 20.3, 6.7,  0.3, -0.8, -0.1],
+    };
+    const revenue = data.cogs.map((c,i)=>c+data.sga[i]+data.ga[i]+Math.max(data.profit[i],0));
+    const colors = [MC.stage, MC.learn, MC.ip, MC.peri, MC.mira, MC.cqd, MC.other];
+    const darks  = [MC.stageD, MC.learnD, MC.ipD, MC.periD, MC.miraD, MC.cqdD, MC.otherD];
+
+    const ctx = document.getElementById('cvs-biz');
+    if(!ctx) return;
+    CHART_INSTANCES['cvs-biz'] = new Chart(ctx, {
+      type: 'bar', indexAxis: 'y',
+      data: {
+        labels,
+        datasets: [
+          { label: isJa?'売上原価':'銷貨成本', data: data.cogs,
+            backgroundColor: 'rgba(184,58,46,.25)', borderWidth:0, stack:'s' },
+          { label: isJa?'販売費':'銷售費用', data: data.sga,
+            backgroundColor: 'rgba(184,58,46,.15)', borderWidth:0, stack:'s' },
+          { label: isJa?'管理費':'管理費用', data: data.ga,
+            backgroundColor: 'rgba(184,58,46,.08)', borderWidth:0, stack:'s' },
+          { label: isJa?'事業利益':'事業利益', data: data.profit.map(v=>Math.max(v,0)),
+            backgroundColor: colors.map((c,i)=>data.profit[i]>=0?c:'transparent'),
+            borderWidth:0, stack:'s', borderRadius:{topRight:4,bottomRight:4} },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position:'bottom',
+            labels:{ boxWidth:10, boxHeight:10, font:{size:11}, color:'#666',
+              generateLabels: chart => chart.data.datasets.map((ds,i)=>({
+                text: ds.label, fillStyle: ds.backgroundColor instanceof Array ? ds.backgroundColor[0] : ds.backgroundColor,
+                strokeStyle: 'transparent', lineWidth:0, hidden:false, datasetIndex:i
+              }))
+            }
+          },
+          tooltip: { callbacks: {
+            label: ctx => {
+              const labels = [isJa?'原価':'原價', isJa?'販売費':'銷售費', isJa?'管理費':'管理費', isJa?'利益':'利益'];
+              return ` ${labels[ctx.datasetIndex]}: ${ctx.parsed.x.toFixed(1)}M`;
+            }
+          }}
+        },
+        scales: {
+          y: { stacked:true, grid:{ color:'rgba(128,128,128,.08)' },
+               ticks:{ callback: v=>v+'M', color:'#888', font:{size:11} }, max:72 },
+          x: { stacked:true, ticks:{ color:'#444', font:{size:11} }, grid:{ display:false } }
+        }
+      },
+      plugins: [{
+        id: 'profitLabels',
+        afterDatasetDraw(chart, args){
+          if(args.index !== 3) return;
+          const {ctx:c} = chart;
+          chart.getDatasetMeta(3).data.forEach((bar, i) => {
+            if(data.profit[i] <= 0) return;
+            c.save();
+            c.font = '500 10.5px sans-serif';
+            c.fillStyle = darks[i];
+            c.textAlign = 'center'; c.textBaseline = 'bottom';
+            c.fillText(`+${data.profit[i].toFixed(1)}M`, bar.x, bar.y - 2);
+            c.restore();
+          });
+        }
+      }]
+    });
+  }
+
+  // ④ 共通費 — ドーナツ
+  function buildKyotuChart(isJa){
+    destroyChart('cvs-kyotu');
+    const labels = isJa
+      ? ['人件費 46.6M','一般管理費 28.0M','営業費用 17.0M']
+      : ['人件費 46.6M','一般管理費 28.0M','營業費用 17.0M'];
+    const vals = [46.6, 28.0, 17.0];
+    const colors = [MC.kyotuD, '#E06060', '#F5A8A0'];
+    const ctx = document.getElementById('cvs-kyotu');
+    if(!ctx) return;
+    CHART_INSTANCES['cvs-kyotu'] = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderWidth:2, borderColor:'#fff' }]},
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout:'60%',
+        plugins: { legend:{ display:false }, tooltip:{ callbacks:{ label: ctx => ` ${ctx.label}: ${(ctx.parsed/91.6*100).toFixed(0)}%` }}}
+      },
+      plugins: [{
+        id:'centerText',
+        afterDraw(chart){
+          const {ctx:c,chartArea:{top,bottom,left,right}}=chart;
+          const cx=(left+right)/2,cy=(top+bottom)/2;
+          c.save();
+          c.font='500 17px sans-serif'; c.fillStyle=MC.kyotuD;
+          c.textAlign='center'; c.textBaseline='middle';
+          c.fillText('▲91.6M',cx,cy-8);
+          c.font='10px sans-serif'; c.fillStyle='#888';
+          c.fillText(isJa?'共通費合計':'共通費合計',cx,cy+10);
+          c.restore();
+        }
+      }]
+    });
+    const leg=document.getElementById('legend-kyotu');
+    if(leg){
+      leg.innerHTML=labels.map((l,i)=>
+        `<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);margin-bottom:5px">
+          <span style="width:10px;height:10px;border-radius:2px;background:${colors[i]};flex-shrink:0"></span>
+          <span>${l}</span>
+          <span style="margin-left:auto;color:${colors[i]};font-weight:500">${(vals[i]/91.6*100).toFixed(0)}%</span>
+        </div>`
+      ).join('');
+    }
+  }
+
+  // ⑤ 全社結果 — 積み上げ横棒ウォーターフォール（全社版）
+  function buildWaterfallChart(isJa){
+    destroyChart('cvs-waterfall');
+    // 全社P&L構造: 売上181.1 = 原価58.0 + 販売費55.0 + 管理費31.5 + 人件費(共通)46.6 + 営業利益▲10.0
+    // 事業費用 = 売上原価64.6 + 販売費26.4 + 管理費3.4 + 人件費0.3 = 94.7 → 事業利益83.5（事業分のみ）
+    // 共通費 = 人件費46.6 + 管理費28.0 + 営業費17.0 = 91.6
+    const labels = isJa
+      ? ['売上 181.1M', '▲原価', '▲販売費', '▲管理費', '事業利益83.5M', '▲人件費', '▲管理費(共通)', '▲営業費', '営業利益']
+      : ['營收 181.1M', '▲原價', '▲銷售費', '▲管理費', '事業利益83.5M', '▲人件費', '▲管理費(共通)', '▲營業費', '營業利益'];
+    // floating bar: [bottom, top]
+    const floatData = [
+      [0, 181.1],      // 売上
+      [116.5, 181.1],  // ▲売上原価 64.6 → 116.5残
+      [90.1, 116.5],   // ▲販売費 26.4 → 90.1残
+      [83.5, 90.1],    // ▲管理費（事業）3.4+0.3=3.6 → 83.5
+      [0, 83.5],       // 事業利益（強調）
+      [37.0, 83.5],    // ▲人件費 46.5 → 37.0
+      [9.0, 37.0],     // ▲管理費（共通）28.0 → 9.0
+      [-8.0, 9.0],     // ▲営業費 17.0 → -8.0
+      [-10.3, 0],      // 営業利益（最終）
+    ];
+    const barColors = [
+      MC.learnD,       // 売上 → 青系
+      'rgba(184,58,46,.3)',  // ▲原価
+      'rgba(184,58,46,.22)', // ▲販売費
+      'rgba(184,58,46,.15)', // ▲管理費（事業）
+      MC.learnD,       // 事業利益 → 強調
+      MC.kyotuD,       // ▲人件費
+      '#E06060',       // ▲管理費（共通）
+      '#F5A8A0',       // ▲営業費
+      '#B83A2E',       // 営業利益（赤）
+    ];
+    const ctx = document.getElementById('cvs-waterfall');
+    if(!ctx) return;
+    CHART_INSTANCES['cvs-waterfall'] = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{
+        data: floatData, backgroundColor: barColors,
+        borderWidth:0, borderRadius:3
+      }]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            label: (ctx) => {
+              const d = ctx.parsed; const diff = Math.abs(d.y.max - d.y.min).toFixed(1);
+              if(ctx.dataIndex===0) return ` 売上: 181.1M`;
+              if(ctx.dataIndex===4) return ` 事業利益: +83.5M`;
+              if(ctx.dataIndex===8) return ` 営業利益: ▲10.3M`;
+              return ` ${labels[ctx.dataIndex]}: ${diff}M`;
+            }
+          }}
+        },
+        scales: {
+          y: { grid:{ color:'rgba(128,128,128,.08)' },
+               ticks:{ callback: v=>v+'M', color:'#888', font:{size:11} },
+               min:-20, max:200 },
+          x: { ticks:{ color:'#444', font:{size:10}, maxRotation:35,
+                       callback: function(val){ return this.getLabelForValue(val); }
+               }, grid:{ display:false } }
+        }
+      },
+      plugins: [{
+        id: 'wfLabels',
+        afterDatasetDraw(chart){
+          const {ctx:c} = chart;
+          const vals = ['+181.1M', '▲64.6M', '▲26.4M', '▲3.7M', '+83.5M', '▲46.6M', '▲28.0M', '▲17.0M', '▲10.3M'];
+          chart.getDatasetMeta(0).data.forEach((bar, i) => {
+            const clr = [0,4].includes(i) ? MC.learnD : i===8 ? '#B83A2E' : '#999';
+            const wt  = [0,4,8].includes(i) ? '500' : '400';
+            c.save();
+            c.font = `${wt} 10px sans-serif`;
+            c.fillStyle = clr;
+            c.textAlign = 'center'; c.textBaseline = 'bottom';
+            const y = Math.min(bar.y, bar.base) - 3;
+            c.fillText(vals[i], bar.x, y);
+            c.restore();
+          });
+        }
+      }]
+    });
+  }
+
+  function togglePL(){
+    const d=document.getElementById('pl-detail');
+    const icon=document.getElementById('pl-toggle-icon');
+    const open=d.style.display==='none';
+    d.style.display=open?'block':'none';
+    icon.textContent=open?'▼':'▶';
+  }
+
+
+  function showSubtab(name){
+    document.querySelectorAll('.subtab').forEach((t,i)=>{t.classList.toggle('active',['sku','price','ch','cross','trend','bcl','yn'][i]===name);});
+    document.querySelectorAll('.subpage').forEach(p=>{p.classList.toggle('active',p.id==='sub-'+name);});
+    if(name==='sku') buildSkuTable();
+    if(name==='price') buildPriceContent();
+    if(name==='ch') buildChContent();
+    if(name==='cross') buildRankingTable();
+    if(name==='trend') buildTrendContent();
+    if(name==='bcl') buildBclContent();
+    if(name==='yn') buildYnContent();
+  }
+
+  function setLang(lang){
+    currentLang=lang;
+    document.querySelectorAll('.lang-btn').forEach(btn=>{btn.classList.toggle('active',btn.textContent.trim()===(lang==='ja'?'JP':'中文'));});
+    document.querySelectorAll('[data-ja]').forEach(el=>{const v=el.getAttribute('data-'+lang);if(v!==null)el.textContent=v;});
+    const aS=document.querySelector('.subpage.active');
+    if(aS){
+      const id=aS.id.replace('sub-','');
+      if(id==='sku') buildSkuTable();
+      else if(id==='price') buildPriceContent();
+      else if(id==='ch') buildChContent();
+      else if(id==='cross') buildRankingTable();
+      else if(id==='trend') buildTrendContent();
+      else if(id==='bcl') buildBclContent();
+      else if(id==='yn') buildYnContent();
+    }
+    // overviewページが表示中なら再描画
+    if(document.getElementById('page-overview').classList.contains('active')){
+      setTimeout(buildOverviewCharts, 50);
+    }
+  }
+
+  function showTab(name){
+    const ids=['overview','learning','monthly','cost','channel'];
+    document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ids[i]===name));
+    document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));
+    if(name==='learning' && !document.getElementById('sku-table-wrap').innerHTML) buildSkuTable();
+    if(name==='overview'){ setTimeout(function(){ if(typeof Chart!=='undefined') buildOverviewCharts(); },100); }
+  }
+
+  window.addEventListener("load", function(){ buildOverviewCharts(); });
+
+  document.querySelectorAll('.bar-fill-pos,.bar-fill-neg').forEach(bar=>{
+    const w=bar.style.width; bar.style.width='0%';
+    setTimeout(()=>{bar.style.width=w;},100);
+  });
+</script>
+</div><!-- /layout-wrap -->
+</body>
+</html>
