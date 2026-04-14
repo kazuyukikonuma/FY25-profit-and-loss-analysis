@@ -1506,13 +1506,13 @@
           tooltip: { callbacks: {
             label: ctx => {
               const dsLabels = [isJa?'原価':'原價', isJa?'販売費':'銷售費', isJa?'管理費':'管理費', isJa?'利益':'利益'];
-              const val = ctx.parsed.y;
               const lbl = dsLabels[ctx.datasetIndex] || ctx.dataset.label;
+              const raw = ctx.dataset.data[ctx.dataIndex];
+              const val = (raw === null || raw === undefined) ? 0 : Number(raw);
+              if(isNaN(val) || val === 0) return null;
               return ` ${lbl}: ${val > 0 ? '+' : ''}${val.toFixed(1)}M`;
             },
-            title: ctx => {
-              return ctx[0] ? ctx[0].label : '';
-            }
+            title: ctx => ctx[0] ? ctx[0].label : ''
           }}
         },
         scales: {
@@ -1596,14 +1596,14 @@
     // floating bar: [bottom, top]
     const floatData = [
       [0, 181.1],      // 売上
-      [116.5, 181.1],  // ▲売上原価 64.6 → 116.5残
-      [90.1, 116.5],   // ▲販売費 26.4 → 90.1残
-      [83.5, 90.1],    // ▲管理費（事業）3.4+0.3=3.6 → 83.5
-      [0, 83.5],       // 事業利益（強調）
-      [37.0, 83.5],    // ▲人件費 46.5 → 37.0
-      [9.0, 37.0],     // ▲管理費（共通）28.0 → 9.0
-      [-8.0, 9.0],     // ▲営業費 17.0 → -8.0
-      [-10.3, 0],      // 営業利益（最終）
+      [116.5, 181.1],  // ▲原価 64.6
+      [90.1, 116.5],   // ▲販売費 26.4
+      [86.4, 90.1],    // ▲管理費（事業）3.7
+      [0, 83.5],       // 事業利益 83.5
+      [36.9, 83.5],    // ▲人件費 46.6
+      [8.9, 36.9],     // ▲管理費（共通）28.0
+      [-8.1, 8.9],     // ▲営業費 17.0
+      [-10.3, 0],      // 営業利益
     ];
     const barColors = [
       MC.learnD,       // 売上 → 青系
@@ -1630,11 +1630,16 @@
           legend: { display: false },
           tooltip: { callbacks: {
             label: (ctx) => {
-              const d = ctx.parsed; const diff = Math.abs(d.y.max - d.y.min).toFixed(1);
-              if(ctx.dataIndex===0) return ` 売上: 181.1M`;
-              if(ctx.dataIndex===4) return ` 事業利益: +83.5M`;
-              if(ctx.dataIndex===8) return ` 営業利益: ▲10.3M`;
-              return ` ${labels[ctx.dataIndex]}: ${diff}M`;
+              const isJaLocal = currentLang === 'ja';
+              const i = ctx.dataIndex;
+              // floatDataの差分を直接参照
+              const fd = [[0,181.1],[116.5,181.1],[90.1,116.5],[86.4,90.1],[0,83.5],[36.9,83.5],[8.9,36.9],[-8.1,8.9],[-10.3,0]];
+              const diff = Math.abs(fd[i][1] - fd[i][0]).toFixed(1);
+              const lbl = ctx.chart.data.labels[i] || '';
+              if(i===0) return ` ${isJaLocal?'売上':'營收'}: +181.1M`;
+              if(i===4) return ` ${isJaLocal?'事業利益':'事業利益'}: +83.5M`;
+              if(i===8) return ` ${isJaLocal?'営業利益':'營業利益'}: ▲10.3M`;
+              return ` ${lbl}: ${diff}M`;
             }
           }}
         },
