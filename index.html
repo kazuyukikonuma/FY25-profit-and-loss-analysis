@@ -1283,8 +1283,8 @@
 
     // ── SVG: カテゴリ別合計横棒 ──
     function makeCatBarSvg(){
-      const W=700, padL=70, padR=90, padT=10, padB=16;
-      const BAR_H=18, GAP=5, GRP_GAP=20;
+      const W=800, padL=70, padR=90, padT=10, padB=16;
+      const BAR_H=22, GAP=6, GRP_GAP=24;
       const n=D.cats.length;
       const H=padT+padB+n*(2*BAR_H+GAP+GRP_GAP);
       const allVals=D.cats.flatMap(c=>[c.total.fy24,c.total.fy25]).map(Math.abs);
@@ -1431,17 +1431,15 @@
           <div class="kpi-sub" style="color:#1d7a5f">${dSign(sga.total.diff)}${fmtM(sga.total.diff,1)}M (${((sga.total.diff/sga.total.fy24)*100).toFixed(0)}%)</div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start;margin-bottom:24px">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--text1);margin-bottom:3px">${isJa?'カテゴリ別合計':'類別合計'}</div>
-          <div style="font-size:10.5px;color:var(--text3);margin-bottom:10px">${isJa?'百万NTD':'百萬NTD'}</div>
-          ${makeCatBarSvg()}
-        </div>
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--text1);margin-bottom:3px">${isJa?'全科目一覧（FY24・FY25・増減）':'全科目明細（FY24・FY25・增減）'}</div>
-          <div style="font-size:10.5px;color:var(--text3);margin-bottom:6px">${isJa?'緑=削減　赤=増加　FY25合計に対するシェアを右端に':'綠=削減　紅=增加'}</div>
-          ${makeFullTable()}
-        </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:500;color:var(--text1);margin-bottom:3px">${isJa?'カテゴリ別合計':'類別合計'}</div>
+        <div style="font-size:10.5px;color:var(--text3);margin-bottom:10px">${isJa?'百万NTD　左=FY24　右=FY25':'百萬NTD　左=FY24　右=FY25'}</div>
+        ${makeCatBarSvg()}
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:500;color:var(--text1);margin-bottom:3px">${isJa?'全科目一覧（FY24・FY25・増減）':'全科目明細（FY24・FY25・增減）'}</div>
+        <div style="font-size:10.5px;color:var(--text3);margin-bottom:6px">${isJa?'緑=削減　赤=増加　FY25合計に対するシェアを右端に':'綠=削減　紅=增加'}</div>
+        ${makeFullTable()}
       </div>
       <div style="font-size:10.5px;color:var(--text3);line-height:1.9">
         ${isJa?
